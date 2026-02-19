@@ -1,0 +1,267 @@
+{% extends "base.html" %} {% block title %}Create Assignment - {{ course.title
+}} - LMS{% endblock %} {% block content %}
+<div class="container">
+  <div class="row">
+    <div class="col-md-8 mx-auto">
+      <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+          <li class="breadcrumb-item">
+            <a href="{{ url_for('dashboard.index') }}">Dashboard</a>
+          </li>
+          <li class="breadcrumb-item">
+            <a href="{{ url_for('courses.view', course_id=course.id) }}"
+              >{{ course.title }}</a
+            >
+          </li>
+          <li class="breadcrumb-item active">Create Assignment</li>
+        </ol>
+      </nav>
+
+      <div class="card">
+        <div class="card-header bg-primary text-white">
+          <h2 class="mb-0">Create New Assignment</h2>
+        </div>
+        <div class="card-body">
+          <div class="alert alert-info">
+            <strong>Course:</strong> {{ course.title }} ({{ course.code }})
+          </div>
+
+          <form method="POST">
+            {{ form.hidden_tag() }}
+
+            <div class="mb-4">
+              <label for="{{ form.title.id }}" class="form-label">
+                <h5>Assignment Title <span class="text-danger">*</span></h5>
+              </label>
+              {{ form.title(class="form-control form-control-lg",
+              placeholder="e.g., Week 1 Quiz, Final Project") }} {% if
+              form.title.errors %}
+              <div class="text-danger mt-2">
+                {% for error in form.title.errors %}
+                <small>{{ error }}</small><br />
+                {% endfor %}
+              </div>
+              {% endif %}
+            </div>
+
+            <div class="mb-4">
+              <label for="{{ form.description.id }}" class="form-label">
+                <h5>Description</h5>
+                <small class="text-muted"
+                  >Provide detailed instructions for students</small
+                >
+              </label>
+              {{ form.description(class="form-control", rows="8",
+              placeholder="Enter assignment description, requirements, and
+              instructions...") }} {% if form.description.errors %}
+              <div class="text-danger mt-2">
+                {% for error in form.description.errors %}
+                <small>{{ error }}</small><br />
+                {% endfor %}
+              </div>
+              {% endif %}
+            </div>
+
+            <div class="row mb-4">
+              <div class="col-md-6">
+                <label for="{{ form.due_date.id }}" class="form-label">
+                  <h5>Due Date</h5>
+                  <small class="text-muted">Leave blank for no due date</small>
+                </label>
+                {{ form.due_date(class="form-control", type="datetime-local") }}
+                {% if form.due_date.errors %}
+                <div class="text-danger mt-2">
+                  {% for error in form.due_date.errors %}
+                  <small>{{ error }}</small><br />
+                  {% endfor %}
+                </div>
+                {% endif %}
+              </div>
+
+              <div class="col-md-6">
+                <label for="{{ form.max_score.id }}" class="form-label">
+                  <h5>Maximum Score <span class="text-danger">*</span></h5>
+                </label>
+                {{ form.max_score(class="form-control", placeholder="100") }} {%
+                if form.max_score.errors %}
+                <div class="text-danger mt-2">
+                  {% for error in form.max_score.errors %}
+                  <small>{{ error }}</small><br />
+                  {% endfor %}
+                </div>
+                {% endif %}
+              </div>
+            </div>
+
+            <!-- Quick Templates -->
+            <div class="card mb-4">
+              <div class="card-header">
+                <h5 class="mb-0">Quick Templates</h5>
+              </div>
+              <div class="card-body">
+                <p class="text-muted">
+                  Click to fill in common assignment types
+                </p>
+                <div class="d-flex flex-wrap gap-2">
+                  <button
+                    type="button"
+                    class="btn btn-outline-secondary btn-sm"
+                    onclick="fillTemplate('quiz')"
+                  >
+                    Quiz/Test
+                  </button>
+                  <button
+                    type="button"
+                    class="btn btn-outline-secondary btn-sm"
+                    onclick="fillTemplate('essay')"
+                  >
+                    Essay
+                  </button>
+                  <button
+                    type="button"
+                    class="btn btn-outline-secondary btn-sm"
+                    onclick="fillTemplate('project')"
+                  >
+                    Project
+                  </button>
+                  <button
+                    type="button"
+                    class="btn btn-outline-secondary btn-sm"
+                    onclick="fillTemplate('homework')"
+                  >
+                    Homework
+                  </button>
+                  <button
+                    type="button"
+                    class="btn btn-outline-secondary btn-sm"
+                    onclick="fillTemplate('presentation')"
+                  >
+                    Presentation
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <div class="d-flex justify-content-between">
+              <a
+                href="{{ url_for('courses.view', course_id=course.id) }}"
+                class="btn btn-secondary"
+              >
+                <i class="bi bi-arrow-left"></i> Cancel
+              </a>
+              <button type="submit" class="btn btn-primary btn-lg">
+                <i class="bi bi-plus-circle"></i> Create Assignment
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %} {% block extra_js %}
+<script>
+  // Template descriptions
+  const templates = {
+    quiz: {
+      description: `Instructions:
+- This is a timed quiz
+- You have [X] minutes to complete
+- Multiple choice and short answer questions
+- Open book/notes [allowed/not allowed]
+- Submit your answers before the due date
+
+Requirements:
+- Answer all questions
+- Show your work where applicable
+- No collaboration allowed`,
+    },
+    essay: {
+      description: `Instructions:
+Write a [length] essay on [topic].
+
+Requirements:
+- Minimum word count: [X words]
+- Use proper citations (MLA/APA format)
+- Include a bibliography
+- Original work only - plagiarism will result in zero credit
+- Upload as PDF or Word document
+
+Grading Criteria:
+- Thesis and argument (40%)
+- Evidence and support (30%)
+- Writing quality (20%)
+- Citations and formatting (10%)`,
+    },
+    project: {
+      description: `Project Overview:
+[Describe the project goals and objectives]
+
+Deliverables:
+1. [Deliverable 1]
+2. [Deliverable 2]
+3. [Deliverable 3]
+
+Requirements:
+- Work can be done individually or in groups of [X]
+- Include documentation/report
+- Submit all files in a single ZIP archive
+
+Grading Rubric:
+- Functionality (40%)
+- Design and implementation (30%)
+- Documentation (20%)
+- Presentation (10%)`,
+    },
+    homework: {
+      description: `Instructions:
+Complete the following exercises from [chapter/section].
+
+Problems to solve:
+- Problem 1: [description]
+- Problem 2: [description]
+- Problem 3: [description]
+
+Requirements:
+- Show all work
+- Answer in complete sentences where applicable
+- Submit as a single PDF file`,
+    },
+    presentation: {
+      description: `Instructions:
+Prepare a [length] minute presentation on [topic].
+
+Requirements:
+- Create slides (PowerPoint/Google Slides)
+- Include visual aids
+- Minimum [X] slides
+- Cite all sources
+- Submit slides before presentation date
+
+Grading Criteria:
+- Content quality (40%)
+- Presentation delivery (30%)
+- Visual design (20%)
+- Time management (10%)`,
+    },
+  };
+
+  function fillTemplate(type) {
+    const titleInput = document.getElementById("{{ form.title.id }}");
+    const descInput = document.getElementById("{{ form.description.id }}");
+
+    if (confirm("This will replace current content. Continue?")) {
+      titleInput.value = type.charAt(0).toUpperCase() + type.slice(1);
+      descInput.value = templates[type].description;
+    }
+  }
+
+  // Set minimum date to today for due date picker
+  const dueDateInput = document.querySelector('input[type="datetime-local"]');
+  if (dueDateInput) {
+    const now = new Date();
+    now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+    dueDateInput.min = now.toISOString().slice(0, 16);
+  }
+</script>
+{% endblock %}s
