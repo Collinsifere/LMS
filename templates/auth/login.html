@@ -1,0 +1,188 @@
+{% extends "base.html" %}
+
+{% block title %}Login - LMS{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center mt-5">
+        <div class="col-md-6 col-lg-5">
+            <!-- Login Card -->
+            <div class="card shadow-lg">
+                <div class="card-header bg-primary text-white text-center">
+                    <h2 class="mb-0"><i class="bi bi-box-arrow-in-right"></i> Login</h2>
+                </div>
+                <div class="card-body p-4">
+                    <p class="text-center text-muted mb-4">
+                        Welcome back! Please login to your account.
+                    </p>
+
+                    <form method="POST" action="{{ url_for('auth.login') }}">
+                        {{ form.hidden_tag() }}
+
+                        <!-- Email Field -->
+                        <div class="mb-3">
+                            <label for="{{ form.email.id }}" class="form-label">
+                                <i class="bi bi-envelope"></i> Email Address
+                            </label>
+                            {{ form.email(class="form-control form-control-lg", placeholder="Enter your email", autofocus=true) }}
+                            {% if form.email.errors %}
+                                <div class="text-danger mt-2">
+                                    {% for error in form.email.errors %}
+                                        <small><i class="bi bi-exclamation-circle"></i> {{ error }}</small><br>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Password Field -->
+                        <div class="mb-3">
+                            <label for="{{ form.password.id }}" class="form-label">
+                                <i class="bi bi-lock"></i> Password
+                            </label>
+                            <div class="input-group">
+                                {{ form.password(class="form-control form-control-lg", placeholder="Enter your password", id="passwordField") }}
+                                <button class="btn btn-outline-secondary" type="button" id="togglePassword">
+                                    <i class="bi bi-eye" id="toggleIcon"></i>
+                                </button>
+                            </div>
+                            {% if form.password.errors %}
+                                <div class="text-danger mt-2">
+                                    {% for error in form.password.errors %}
+                                        <small><i class="bi bi-exclamation-circle"></i> {{ error }}</small><br>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Remember Me Checkbox -->
+                        <div class="mb-3">
+                            <div class="form-check">
+                                {{ form.remember_me(class="form-check-input") }}
+                                <label class="form-check-label" for="{{ form.remember_me.id }}">
+                                    Remember me
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Submit Button -->
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <i class="bi bi-box-arrow-in-right"></i> Login
+                            </button>
+                        </div>
+                    </form>
+
+                    <!-- Divider -->
+                    <hr class="my-4">
+
+                    <!-- Additional Links -->
+                    <div class="text-center">
+                        <p class="mb-2">
+                            <a href="#" class="text-decoration-none">
+                                <i class="bi bi-question-circle"></i> Forgot your password?
+                            </a>
+                        </p>
+                        <p class="mb-0">
+                            Don't have an account? 
+                            <a href="{{ url_for('auth.register') }}" class="text-decoration-none fw-bold">
+                                Sign up here
+                            </a>
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Demo Credentials (Remove in production) -->
+            <div class="card mt-3 border-info">
+                <div class="card-body bg-info bg-opacity-10">
+                    <h6 class="card-title"><i class="bi bi-info-circle"></i> Demo Information</h6>
+                    <p class="small mb-2">You can register a new account or use demo credentials:</p>
+                    <p class="small mb-1"><strong>Student:</strong> student@example.com / password123</p>
+                    <p class="small mb-0"><strong>Instructor:</strong> instructor@example.com / password123</p>
+                    <small class="text-muted"><em>Note: Remove this in production</em></small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Toggle password visibility
+    const togglePassword = document.getElementById('togglePassword');
+    const passwordField = document.getElementById('passwordField');
+    const toggleIcon = document.getElementById('toggleIcon');
+
+    if (togglePassword && passwordField && toggleIcon) {
+        togglePassword.addEventListener('click', function() {
+            // Toggle the type attribute
+            const type = passwordField.getAttribute('type') === 'password' ? 'text' : 'password';
+            passwordField.setAttribute('type', type);
+            
+            // Toggle the icon
+            if (type === 'password') {
+                toggleIcon.classList.remove('bi-eye-slash');
+                toggleIcon.classList.add('bi-eye');
+            } else {
+                toggleIcon.classList.remove('bi-eye');
+                toggleIcon.classList.add('bi-eye-slash');
+            }
+        });
+    }
+
+    // Auto-focus on email field
+    document.addEventListener('DOMContentLoaded', function() {
+        const emailField = document.getElementById('{{ form.email.id }}');
+        if (emailField) {
+            emailField.focus();
+        }
+    });
+
+    // Form validation feedback
+    const loginForm = document.querySelector('form');
+    if (loginForm) {
+        loginForm.addEventListener('submit', function(e) {
+            const email = document.getElementById('{{ form.email.id }}').value.trim();
+            const password = document.getElementById('{{ form.password.id }}').value;
+
+            if (!email || !password) {
+                e.preventDefault();
+                alert('Please enter both email and password.');
+                return false;
+            }
+
+            // Show loading state
+            const submitBtn = this.querySelector('button[type="submit"]');
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Logging in...';
+        });
+    }
+</script>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .card {
+        border-radius: 15px;
+    }
+    
+    .card-header {
+        border-radius: 15px 15px 0 0 !important;
+        padding: 1.5rem;
+    }
+    
+    .form-control:focus {
+        border-color: #0d6efd;
+        box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+    }
+    
+    .input-group .btn {
+        border-left: 0;
+    }
+    
+    .input-group .form-control:focus + .btn {
+        border-color: #0d6efd;
+    }
+</style>
+{% endblock %}
