@@ -1,0 +1,24 @@
+/* Custom styles for LMS */
+
+body {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+main {
+    flex: 1;
+}
+
+.card {
+    margin-bottom: 1.5rem;
+}
+
+.course-card {
+    transition: transform 0.2s;
+}
+
+.course-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
