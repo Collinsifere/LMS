@@ -1,0 +1,395 @@
+{% extends "base.html" %}
+
+{% block title %}Register - LMS{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center mt-5">
+        <div class="col-md-8 col-lg-7">
+            <!-- Registration Card -->
+            <div class="card shadow-lg">
+                <div class="card-header bg-success text-white text-center">
+                    <h2 class="mb-0"><i class="bi bi-person-plus"></i> Create Account</h2>
+                </div>
+                <div class="card-body p-4">
+                    <p class="text-center text-muted mb-4">
+                        Join our learning community today!
+                    </p>
+
+                    <form method="POST" action="{{ url_for('auth.register') }}">
+                        {{ form.hidden_tag() }}
+
+                        <div class="row">
+                            <!-- First Name -->
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.first_name.id }}" class="form-label">
+                                    <i class="bi bi-person"></i> First Name <span class="text-danger">*</span>
+                                </label>
+                                {{ form.first_name(class="form-control", placeholder="John") }}
+                                {% if form.first_name.errors %}
+                                    <div class="text-danger mt-1">
+                                        {% for error in form.first_name.errors %}
+                                            <small><i class="bi bi-exclamation-circle"></i> {{ error }}</small><br>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+
+                            <!-- Last Name -->
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.last_name.id }}" class="form-label">
+                                    <i class="bi bi-person"></i> Last Name <span class="text-danger">*</span>
+                                </label>
+                                {{ form.last_name(class="form-control", placeholder="Doe") }}
+                                {% if form.last_name.errors %}
+                                    <div class="text-danger mt-1">
+                                        {% for error in form.last_name.errors %}
+                                            <small><i class="bi bi-exclamation-circle"></i> {{ error }}</small><br>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <!-- Username -->
+                        <div class="mb-3">
+                            <label for="{{ form.username.id }}" class="form-label">
+                                <i class="bi bi-at"></i> Username <span class="text-danger">*</span>
+                            </label>
+                            {{ form.username(class="form-control", placeholder="johndoe", id="usernameField") }}
+                            <small class="form-text text-muted">
+                                Choose a unique username (minimum 3 characters)
+                            </small>
+                            {% if form.username.errors %}
+                                <div class="text-danger mt-1">
+                                    {% for error in form.username.errors %}
+                                        <small><i class="bi bi-exclamation-circle"></i> {{ error }}</small><br>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Email -->
+                        <div class="mb-3">
+                            <label for="{{ form.email.id }}" class="form-label">
+                                <i class="bi bi-envelope"></i> Email Address <span class="text-danger">*</span>
+                            </label>
+                            {{ form.email(class="form-control", placeholder="john.doe@example.com") }}
+                            <small class="form-text text-muted">
+                                We'll never share your email with anyone else
+                            </small>
+                            {% if form.email.errors %}
+                                <div class="text-danger mt-1">
+                                    {% for error in form.email.errors %}
+                                        <small><i class="bi bi-exclamation-circle"></i> {{ error }}</small><br>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="row">
+                            <!-- Password -->
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.password.id }}" class="form-label">
+                                    <i class="bi bi-lock"></i> Password <span class="text-danger">*</span>
+                                </label>
+                                <div class="input-group">
+                                    {{ form.password(class="form-control", placeholder="Enter password", id="passwordField") }}
+                                    <button class="btn btn-outline-secondary" type="button" id="togglePassword">
+                                        <i class="bi bi-eye" id="toggleIcon"></i>
+                                    </button>
+                                </div>
+                                <small class="form-text text-muted">
+                                    Minimum 6 characters
+                                </small>
+                                {% if form.password.errors %}
+                                    <div class="text-danger mt-1">
+                                        {% for error in form.password.errors %}
+                                            <small><i class="bi bi-exclamation-circle"></i> {{ error }}</small><br>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                                
+                                <!-- Password Strength Indicator -->
+                                <div class="mt-2">
+                                    <div class="progress" style="height: 5px;">
+                                        <div id="passwordStrength" class="progress-bar" role="progressbar" style="width: 0%;"></div>
+                                    </div>
+                                    <small id="strengthText" class="text-muted"></small>
+                                </div>
+                            </div>
+
+                            <!-- Confirm Password -->
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.confirm_password.id }}" class="form-label">
+                                    <i class="bi bi-lock-fill"></i> Confirm Password <span class="text-danger">*</span>
+                                </label>
+                                <div class="input-group">
+                                    {{ form.confirm_password(class="form-control", placeholder="Re-enter password", id="confirmPasswordField") }}
+                                    <button class="btn btn-outline-secondary" type="button" id="toggleConfirmPassword">
+                                        <i class="bi bi-eye" id="toggleConfirmIcon"></i>
+                                    </button>
+                                </div>
+                                {% if form.confirm_password.errors %}
+                                    <div class="text-danger mt-1">
+                                        {% for error in form.confirm_password.errors %}
+                                            <small><i class="bi bi-exclamation-circle"></i> {{ error }}</small><br>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                                <small id="passwordMatch" class="form-text"></small>
+                            </div>
+                        </div>
+
+                        <!-- Role Selection -->
+                        <div class="mb-4">
+                            <label for="{{ form.role.id }}" class="form-label">
+                                <i class="bi bi-person-badge"></i> I am a <span class="text-danger">*</span>
+                            </label>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="card {% if form.role.data == 'student' %}border-primary{% endif %}" onclick="selectRole('student')" style="cursor: pointer;">
+                                        <div class="card-body text-center">
+                                            <i class="bi bi-mortarboard-fill" style="font-size: 2rem; color: #0d6efd;"></i>
+                                            <h5 class="mt-2">Student</h5>
+                                            <p class="text-muted small mb-0">I want to enroll in courses and learn</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="card {% if form.role.data == 'instructor' %}border-success{% endif %}" onclick="selectRole('instructor')" style="cursor: pointer;">
+                                        <div class="card-body text-center">
+                                            <i class="bi bi-person-workspace" style="font-size: 2rem; color: #198754;"></i>
+                                            <h5 class="mt-2">Instructor</h5>
+                                            <p class="text-muted small mb-0">I want to create and teach courses</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            {{ form.role(style="display: none;", id="roleField") }}
+                            {% if form.role.errors %}
+                                <div class="text-danger mt-2">
+                                    {% for error in form.role.errors %}
+                                        <small><i class="bi bi-exclamation-circle"></i> {{ error }}</small><br>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Terms and Conditions -->
+                        <div class="mb-3">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="agreeTerms" required>
+                                <label class="form-check-label" for="agreeTerms">
+                                    I agree to the <a href="#" class="text-decoration-none">Terms of Service</a> 
+                                    and <a href="#" class="text-decoration-none">Privacy Policy</a>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Submit Button -->
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-success btn-lg">
+                                <i class="bi bi-person-plus"></i> Create Account
+                            </button>
+                        </div>
+                    </form>
+
+                    <!-- Divider -->
+                    <hr class="my-4">
+
+                    <!-- Login Link -->
+                    <div class="text-center">
+                        <p class="mb-0">
+                            Already have an account? 
+                            <a href="{{ url_for('auth.login') }}" class="text-decoration-none fw-bold">
+                                Login here
+                            </a>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Toggle password visibility
+    function setupPasswordToggle(toggleId, fieldId, iconId) {
+        const toggle = document.getElementById(toggleId);
+        const field = document.getElementById(fieldId);
+        const icon = document.getElementById(iconId);
+
+        if (toggle && field && icon) {
+            toggle.addEventListener('click', function() {
+                const type = field.getAttribute('type') === 'password' ? 'text' : 'password';
+                field.setAttribute('type', type);
+                
+                if (type === 'password') {
+                    icon.classList.remove('bi-eye-slash');
+                    icon.classList.add('bi-eye');
+                } else {
+                    icon.classList.remove('bi-eye');
+                    icon.classList.add('bi-eye-slash');
+                }
+            });
+        }
+    }
+
+    setupPasswordToggle('togglePassword', 'passwordField', 'toggleIcon');
+    setupPasswordToggle('toggleConfirmPassword', 'confirmPasswordField', 'toggleConfirmIcon');
+
+    // Password strength checker
+    const passwordField = document.getElementById('passwordField');
+    const strengthBar = document.getElementById('passwordStrength');
+    const strengthText = document.getElementById('strengthText');
+
+    if (passwordField && strengthBar && strengthText) {
+        passwordField.addEventListener('input', function() {
+            const password = this.value;
+            let strength = 0;
+            
+            if (password.length >= 6) strength += 25;
+            if (password.length >= 10) strength += 25;
+            if (/[a-z]/.test(password) && /[A-Z]/.test(password)) strength += 25;
+            if (/[0-9]/.test(password)) strength += 12.5;
+            if (/[^a-zA-Z0-9]/.test(password)) strength += 12.5;
+            
+            strengthBar.style.width = strength + '%';
+            
+            if (strength < 25) {
+                strengthBar.className = 'progress-bar bg-danger';
+                strengthText.textContent = 'Weak';
+                strengthText.className = 'text-danger';
+            } else if (strength < 50) {
+                strengthBar.className = 'progress-bar bg-warning';
+                strengthText.textContent = 'Fair';
+                strengthText.className = 'text-warning';
+            } else if (strength < 75) {
+                strengthBar.className = 'progress-bar bg-info';
+                strengthText.textContent = 'Good';
+                strengthText.className = 'text-info';
+            } else {
+                strengthBar.className = 'progress-bar bg-success';
+                strengthText.textContent = 'Strong';
+                strengthText.className = 'text-success';
+            }
+        });
+    }
+
+    // Password match checker
+    const confirmPasswordField = document.getElementById('confirmPasswordField');
+    const passwordMatch = document.getElementById('passwordMatch');
+
+    if (confirmPasswordField && passwordMatch && passwordField) {
+        function checkPasswordMatch() {
+            if (confirmPasswordField.value === '') {
+                passwordMatch.textContent = '';
+                return;
+            }
+            
+            if (passwordField.value === confirmPasswordField.value) {
+                passwordMatch.textContent = '✓ Passwords match';
+                passwordMatch.className = 'form-text text-success';
+            } else {
+                passwordMatch.textContent = '✗ Passwords do not match';
+                passwordMatch.className = 'form-text text-danger';
+            }
+        }
+
+        passwordField.addEventListener('input', checkPasswordMatch);
+        confirmPasswordField.addEventListener('input', checkPasswordMatch);
+    }
+
+    // Role selection
+    function selectRole(role) {
+        const roleField = document.getElementById('roleField');
+        if (roleField) {
+            roleField.value = role;
+            
+            // Update card styling
+            document.querySelectorAll('.card').forEach(card => {
+                card.classList.remove('border-primary', 'border-success');
+            });
+            
+            if (role === 'student') {
+                event.currentTarget.classList.add('border-primary');
+            } else {
+                event.currentTarget.classList.add('border-success');
+            }
+        }
+    }
+
+    // Form validation
+    const registerForm = document.querySelector('form');
+    if (registerForm) {
+        registerForm.addEventListener('submit', function(e) {
+            const password = document.getElementById('passwordField').value;
+            const confirmPassword = document.getElementById('confirmPasswordField').value;
+            const agreeTerms = document.getElementById('agreeTerms').checked;
+
+            if (password !== confirmPassword) {
+                e.preventDefault();
+                alert('Passwords do not match!');
+                return false;
+            }
+
+            if (!agreeTerms) {
+                e.preventDefault();
+                alert('Please agree to the Terms of Service and Privacy Policy');
+                return false;
+            }
+
+            // Show loading state
+            const submitBtn = this.querySelector('button[type="submit"]');
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Creating account...';
+        });
+    }
+
+    // Username validation (no spaces)
+    const usernameField = document.getElementById('usernameField');
+    if (usernameField) {
+        usernameField.addEventListener('input', function() {
+            this.value = this.value.replace(/\s/g, '').toLowerCase();
+        });
+    }
+</script>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .card {
+        border-radius: 15px;
+    }
+    
+    .card-header {
+        border-radius: 15px 15px 0 0 !important;
+        padding: 1.5rem;
+    }
+    
+    .form-control:focus {
+        border-color: #198754;
+        box-shadow: 0 0 0 0.25rem rgba(25, 135, 84, 0.25);
+    }
+    
+    .input-group .btn {
+        border-left: 0;
+    }
+    
+    .input-group .form-control:focus + .btn {
+        border-color: #198754;
+    }
+
+    .card[onclick] {
+        transition: all 0.3s ease;
+    }
+
+    .card[onclick]:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+</style>
+{% endblock %}
