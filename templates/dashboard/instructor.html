@@ -1,0 +1,119 @@
+{% extends "base.html" %}
+{% block title %}Instructor Dashboard{% endblock %}
+
+{% block content %}
+<div class="container">
+
+    <!-- Stats -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card text-center bg-primary text-white">
+                <div class="card-body">
+                    <h2>{{ courses|length }}</h2>
+                    <p>Total Courses</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card text-center bg-info text-white">
+                <div class="card-body">
+                    <h2>{{ total_students }}</h2>
+                    <p>Total Students</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card text-center bg-secondary text-white">
+                <div class="card-body">
+                    <h2>{{ total_assignments }}</h2>
+                    <p>Assignments</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card text-center bg-warning">
+                <div class="card-body">
+                    <h2>{{ pending_submissions|length }}</h2>
+                    <p>Pending Grades</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Courses Table -->
+    <div class="card mb-4">
+        <div class="card-header bg-primary text-white">
+            My Courses
+        </div>
+        <div class="card-body">
+            {% if course_stats %}
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Course</th>
+                        <th>Students</th>
+                        <th>Lessons</th>
+                        <th>Assignments</th>
+                        <th>Avg Progress</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for stat in course_stats %}
+                    <tr>
+                        <td>
+                            <a href="{{ url_for('courses.view', course_id=stat.course.id) }}">
+                                {{ stat.course.title }}
+                            </a>
+                        </td>
+                        <td>{{ stat.students }}</td>
+                        <td>{{ stat.lessons }}</td>
+                        <td>{{ stat.assignments }}</td>
+                        <td>
+                            {% if stat.students > 0 %}
+                                {{ stat.avg_progress }}%
+                            {% else %}
+                                N/A
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if stat.course.is_published %}
+                                <span class="badge bg-success">Live</span>
+                            {% else %}
+                                <span class="badge bg-secondary">Draft</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+                <p class="text-muted">No courses yet.</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Pending Submissions -->
+    <div class="card">
+        <div class="card-header bg-warning">
+            Pending Grades
+        </div>
+        <div class="card-body">
+            {% if pending_submissions %}
+                {% for submission in pending_submissions %}
+                    <div class="mb-2">
+                        <strong>{{ submission.assignment.title }}</strong><br>
+                        {{ submission.student.first_name }} {{ submission.student.last_name }}
+                    </div>
+                {% endfor %}
+            {% else %}
+                <p class="text-muted">All caught up 🎉</p>
+            {% endif %}
+        </div>
+    </div>
+
+</div>
+{% endblock %}
