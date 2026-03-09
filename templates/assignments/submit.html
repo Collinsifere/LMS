@@ -1,198 +1,208 @@
-{% extends "base.html" %}
-
-{% block title %}Submit Assignment - {{ assignment.title }} - LMS{% endblock %}
-
+{% extends "base.html" %} {% block title %}{{ page_title }} - LMS{% endblock %}
 {% block content %}
 <div class="row">
-    <div class="col-md-8 mx-auto">
-        <nav aria-label="breadcrumb">
-            <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a href="{{ url_for('dashboard.index') }}">Dashboard</a></li>
-                <li class="breadcrumb-item"><a href="{{ url_for('courses.view', course_id=assignment.course.id) }}">{{ assignment.course.title }}</a></li>
-                <li class="breadcrumb-item"><a href="{{ url_for('assignments.view', assignment_id=assignment.id) }}">{{ assignment.title }}</a></li>
-                <li class="breadcrumb-item active">Submit</li>
-            </ol>
-        </nav>
+  <div class="col-md-8 mx-auto">
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb">
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item">
+          <a href="{{ nav.dashboard_url }}">Dashboard</a>
+        </li>
+        <li class="breadcrumb-item">
+          <a href="{{ nav.course_url }}">{{ nav.course_title }}</a>
+        </li>
+        <li class="breadcrumb-item">
+          <a href="{{ nav.assignment_url }}">{{ nav.assignment_title }}</a>
+        </li>
+        <li class="breadcrumb-item active" aria-current="page">Submit</li>
+      </ol>
+    </nav>
 
-        <div class="card">
-            <div class="card-header bg-primary text-white">
-                <h2 class="mb-0">
-                    {% if existing_submission %}
-                        Resubmit Assignment
-                    {% else %}
-                        Submit Assignment
-                    {% endif %}
-                </h2>
-            </div>
-            <div class="card-body">
-                <!-- Assignment Details -->
-                <div class="alert alert-info">
-                    <h5>{{ assignment.title }}</h5>
-                    <p class="mb-2"><strong>Course:</strong> {{ assignment.course.title }}</p>
-                    <p class="mb-2">
-                        <strong>Due Date:</strong>
-                        {% if assignment.due_date %}
-                            {{ assignment.due_date.strftime('%B %d, %Y at %I:%M %p') }}
-                            {% if assignment.due_date < now %}
-                                <span class="badge bg-danger ms-2">Overdue</span>
-                            {% endif %}
-                        {% else %}
-                            No due date
-                        {% endif %}
-                    </p>
-                    <p class="mb-0"><strong>Maximum Score:</strong> {{ assignment.max_score }} points</p>
-                </div>
+    <!-- Submit Card -->
+    <div class="card">
+      <div class="card-header bg-primary text-white">
+        <h2 class="mb-0">{{ header_title }}</h2>
+      </div>
 
-                {% if assignment.description %}
-                <div class="mb-4">
-                    <h5>Assignment Description:</h5>
-                    <div class="border p-3 bg-light">
-                        {{ assignment.description }}
-                    </div>
-                </div>
-                {% endif %}
+      <div class="card-body">
+        <!-- Assignment Info -->
+        <div class="alert alert-info">
+          <h5 class="mb-1">{{ assignment_view.title }}</h5>
 
-                <!-- Previous Submission Warning -->
-                {% if existing_submission %}
-                <div class="alert alert-warning">
-                    <h5><i class="bi bi-exclamation-triangle"></i> Previous Submission Found</h5>
-                    <p>You have already submitted this assignment on {{ existing_submission.submitted_at.strftime('%B %d, %Y at %I:%M %p') }}.</p>
-                    <p class="mb-0">Submitting again will replace your previous submission.</p>
-                </div>
-                {% endif %}
+          <p class="mb-2">
+            <strong>Course:</strong> {{ assignment_view.course_title }}
+          </p>
 
-                <!-- Submission Form -->
-                <form method="POST" enctype="multipart/form-data">
-                    {{ form.hidden_tag() }}
+          <p class="mb-2">
+            <strong>Due Date:</strong>
+            {{ assignment_view.due_display }}{{ assignment_view.due_badge_html |
+            safe }}
+          </p>
 
-                    <div class="mb-4">
-                        <label for="{{ form.content.id }}" class="form-label">
-                            <h5>Submission Text</h5>
-                            <small class="text-muted">You can type your answer here or upload a file below</small>
-                        </label>
-                        {{ form.content(class="form-control", rows="10", placeholder="Enter your submission text here...") }}
-                        {% if form.content.errors %}
-                            <div class="text-danger">
-                                {% for error in form.content.errors %}
-                                    <small>{{ error }}</small>
-                                {% endfor %}
-                            </div>
-                        {% endif %}
-                    </div>
-
-                    <div class="mb-4">
-                        <label for="{{ form.file.id }}" class="form-label">
-                            <h5>Upload File (Optional)</h5>
-                            <small class="text-muted">Accepted formats: PDF, DOC, DOCX, TXT, ZIP (Max 16MB)</small>
-                        </label>
-                        {{ form.file(class="form-control") }}
-                        {% if form.file.errors %}
-                            <div class="text-danger">
-                                {% for error in form.file.errors %}
-                                    <small>{{ error }}</small>
-                                {% endfor %}
-                            </div>
-                        {% endif %}
-                        
-                        {% if existing_submission and existing_submission.file_path %}
-                        <div class="mt-2 alert alert-secondary">
-                            <small>
-                                <strong>Previously uploaded:</strong> {{ existing_submission.file_path.split('/')[-1] }}
-                            </small>
-                        </div>
-                        {% endif %}
-                    </div>
-
-                    <!-- Submission Confirmation -->
-                    <div class="alert alert-light border">
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" id="confirmSubmit" required>
-                            <label class="form-check-label" for="confirmSubmit">
-                                I confirm that this is my own work and I am ready to submit.
-                            </label>
-                        </div>
-                    </div>
-
-                    <div class="d-flex justify-content-between">
-                        <a href="{{ url_for('assignments.view', assignment_id=assignment.id) }}" class="btn btn-secondary">
-                            <i class="bi bi-arrow-left"></i> Cancel
-                        </a>
-                        <button type="submit" class="btn btn-primary btn-lg">
-                            <i class="bi bi-check-circle"></i>
-                            {% if existing_submission %}
-                                Resubmit Assignment
-                            {% else %}
-                                Submit Assignment
-                            {% endif %}
-                        </button>
-                    </div>
-                </form>
-            </div>
+          <p class="mb-0">
+            <strong>Maximum Score:</strong> {{ assignment_view.max_score_display
+            }}
+          </p>
         </div>
 
-        {% if existing_submission %}
-        <!-- Show previous submission -->
-        <div class="card mt-4">
-            <div class="card-header">
-                <h5 class="mb-0">Your Previous Submission</h5>
-            </div>
-            <div class="card-body">
-                <p><strong>Submitted:</strong> {{ existing_submission.submitted_at.strftime('%B %d, %Y at %I:%M %p') }}</p>
-                
-                {% if existing_submission.content %}
-                <div class="mb-3">
-                    <strong>Text:</strong>
-                    <div class="border p-3 bg-light mt-2">
-                        {{ existing_submission.content }}
-                    </div>
-                </div>
-                {% endif %}
-
-                {% if existing_submission.score is not none %}
-                <div class="alert alert-info">
-                    <strong>Score:</strong> {{ existing_submission.score }} / {{ assignment.max_score }}
-                    ({{ "%.1f"|format((existing_submission.score / assignment.max_score) * 100) }}%)
-                    
-                    {% if existing_submission.feedback %}
-                    <hr>
-                    <strong>Feedback:</strong>
-                    <p class="mb-0 mt-2">{{ existing_submission.feedback }}</p>
-                    {% endif %}
-                </div>
-                {% endif %}
-            </div>
+        <!-- Description (logic-free: render only if non-empty string provided) -->
+        {% if assignment_view.description_text %}
+        <div class="mb-4">
+          <h5>Assignment Description</h5>
+          <div class="border p-3 bg-light">
+            {{ assignment_view.description_text }}
+          </div>
         </div>
         {% endif %}
-    </div>
-</div>
-{% endblock %}
 
-{% block extra_js %}
+        <!-- Previous submission warning -->
+        {% if previous_submission.warning %}
+        <div class="alert alert-warning">
+          <h5 class="mb-2">
+            <i class="bi bi-exclamation-triangle"></i>
+            Previous Submission Found
+          </h5>
+          <p class="mb-1">{{ previous_submission.submitted_at_display }}</p>
+          <p class="mb-0">
+            Submitting again will replace your previous submission.
+          </p>
+        </div>
+        {% endif %}
+
+        <!-- Submission Form -->
+        <form method="POST" enctype="multipart/form-data">
+          {{ form.hidden_tag() }}
+
+          <div class="mb-4">
+            <label for="{{ form.content.id }}" class="form-label">
+              <h5 class="mb-1">Submission Text</h5>
+              <small class="text-muted">
+                You can type your answer here or upload a file below
+              </small>
+            </label>
+
+            {{ form.content( class="form-control", rows="10", placeholder="Enter
+            your submission text here..." ) }} {% if form.content.errors %}
+            <div class="text-danger small mt-2">
+              {% for error in form.content.errors %} {{ error }}<br />
+              {% endfor %}
+            </div>
+            {% endif %}
+          </div>
+
+          <div class="mb-4">
+            <label for="{{ form.file.id }}" class="form-label">
+              <h5 class="mb-1">Upload File (Optional)</h5>
+              <small class="text-muted">
+                Accepted formats: PDF, DOC, DOCX, TXT, ZIP (Max 16MB)
+              </small>
+            </label>
+
+            {{ form.file(class="form-control") }} {% if form.file.errors %}
+            <div class="text-danger small mt-2">
+              {% for error in form.file.errors %} {{ error }}<br />
+              {% endfor %}
+            </div>
+            {% endif %} {% if previous_submission.file_name %}
+            <div class="mt-2 alert alert-secondary py-2">
+              <small>
+                <strong>Previously uploaded:</strong> {{
+                previous_submission.file_name }}
+              </small>
+            </div>
+            {% endif %}
+          </div>
+
+          <!-- Confirmation -->
+          <div class="alert alert-light border">
+            <div class="form-check">
+              <input
+                class="form-check-input"
+                type="checkbox"
+                id="confirmSubmit"
+                required
+              />
+              <label class="form-check-label" for="confirmSubmit">
+                I confirm that this is my own work and I am ready to submit.
+              </label>
+            </div>
+          </div>
+
+          <div class="d-flex justify-content-between">
+            <a href="{{ nav.assignment_url }}" class="btn btn-secondary">
+              <i class="bi bi-arrow-left"></i> Cancel
+            </a>
+
+            <button type="submit" class="btn btn-primary btn-lg">
+              <i class="bi bi-check-circle"></i> {{ submit_button_label }}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Previous submission card -->
+    {% if previous_submission.show_previous_card %}
+    <div class="card mt-4">
+      <div class="card-header">
+        <h5 class="mb-0">Your Previous Submission</h5>
+      </div>
+
+      <div class="card-body">
+        <p class="mb-3">
+          <strong>Submitted:</strong> {{
+          previous_submission.submitted_at_display }}
+        </p>
+
+        {% if previous_submission.content_text %}
+        <div class="mb-3">
+          <strong>Text:</strong>
+          <div class="border p-3 bg-light mt-2">
+            {{ previous_submission.content_text }}
+          </div>
+        </div>
+        {% endif %} {% if previous_submission.is_graded %}
+        <div class="alert alert-info mb-0">
+          <strong>Score:</strong>
+          {{ previous_submission.score_display }} {% if
+          previous_submission.percentage_display %} ({{
+          previous_submission.percentage_display }}) {% endif %} {% if
+          previous_submission.feedback_text %}
+          <hr />
+          <strong>Feedback:</strong>
+          <p class="mb-0 mt-2">{{ previous_submission.feedback_text }}</p>
+          {% endif %}
+        </div>
+        {% endif %}
+      </div>
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %} {% block extra_js %}
 <script>
-    // Set current time for comparison
-    const now = new Date();
-    
-    // Confirm before leaving page if form has content
-    let formModified = false;
-    const form = document.querySelector('form');
-    const inputs = form.querySelectorAll('textarea, input[type="file"]');
-    
-    inputs.forEach(input => {
-        input.addEventListener('change', () => {
-            formModified = true;
-        });
+  (function () {
+    let modified = false;
+    const form = document.querySelector("form");
+    if (!form) return;
+
+    const inputs = form.querySelectorAll("textarea, input[type='file']");
+
+    inputs.forEach((el) => {
+      el.addEventListener("change", () => (modified = true));
+      el.addEventListener("input", () => (modified = true));
     });
-    
-    window.addEventListener('beforeunload', (e) => {
-        if (formModified) {
-            e.preventDefault();
-            e.returnValue = '';
-        }
+
+    window.addEventListener("beforeunload", function (e) {
+      if (modified) {
+        e.preventDefault();
+        e.returnValue = "";
+      }
     });
-    
-    // Remove warning when form is submitted
-    form.addEventListener('submit', () => {
-        formModified = false;
+
+    form.addEventListener("submit", function () {
+      modified = false;
     });
+  })();
 </script>
 {% endblock %}

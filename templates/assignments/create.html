@@ -1,17 +1,16 @@
-{% extends "base.html" %} {% block title %}Create Assignment - {{ course.title
-}} - LMS{% endblock %} {% block content %}
+{% extends "base.html" %} {% block title %}Create Assignment - {{
+course_view.title }} - LMS{% endblock %} {% block content %}
 <div class="container">
   <div class="row">
     <div class="col-md-8 mx-auto">
+      <!-- Breadcrumb -->
       <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
           <li class="breadcrumb-item">
-            <a href="{{ url_for('dashboard.index') }}">Dashboard</a>
+            <a href="{{ course_view.dashboard_url }}">Dashboard</a>
           </li>
           <li class="breadcrumb-item">
-            <a href="{{ url_for('courses.view', course_id=course.id) }}"
-              >{{ course.title }}</a
-            >
+            <a href="{{ course_view.course_url }}"> {{ course_view.title }} </a>
           </li>
           <li class="breadcrumb-item active">Create Assignment</li>
         </ol>
@@ -21,58 +20,66 @@
         <div class="card-header bg-primary text-white">
           <h2 class="mb-0">Create New Assignment</h2>
         </div>
+
         <div class="card-body">
-          <div class="alert alert-info">
-            <strong>Course:</strong> {{ course.title }} ({{ course.code }})
+          <!-- Course Info -->
+          <div class="alert alert-info mb-4">
+            <strong>Course:</strong>
+            {{ course_view.title }} ({{ course_view.code }})
           </div>
 
           <form method="POST">
             {{ form.hidden_tag() }}
 
+            <!-- Title -->
             <div class="mb-4">
               <label for="{{ form.title.id }}" class="form-label">
                 <h5>Assignment Title <span class="text-danger">*</span></h5>
               </label>
-              {{ form.title(class="form-control form-control-lg",
-              placeholder="e.g., Week 1 Quiz, Final Project") }} {% if
+
+              {{ form.title( class="form-control form-control-lg",
+              placeholder="e.g., Week 1 Quiz, Final Project" ) }} {% if
               form.title.errors %}
-              <div class="text-danger mt-2">
-                {% for error in form.title.errors %}
-                <small>{{ error }}</small><br />
+              <div class="text-danger mt-2 small">
+                {% for error in form.title.errors %} {{ error }}<br />
                 {% endfor %}
               </div>
               {% endif %}
             </div>
 
+            <!-- Description -->
             <div class="mb-4">
               <label for="{{ form.description.id }}" class="form-label">
                 <h5>Description</h5>
-                <small class="text-muted"
-                  >Provide detailed instructions for students</small
-                >
+                <small class="text-muted">
+                  Provide detailed instructions for students
+                </small>
               </label>
-              {{ form.description(class="form-control", rows="8",
+
+              {{ form.description( class="form-control", rows="8",
               placeholder="Enter assignment description, requirements, and
-              instructions...") }} {% if form.description.errors %}
-              <div class="text-danger mt-2">
-                {% for error in form.description.errors %}
-                <small>{{ error }}</small><br />
+              instructions..." ) }} {% if form.description.errors %}
+              <div class="text-danger mt-2 small">
+                {% for error in form.description.errors %} {{ error }}<br />
                 {% endfor %}
               </div>
               {% endif %}
             </div>
 
+            <!-- Due Date + Max Score -->
             <div class="row mb-4">
               <div class="col-md-6">
                 <label for="{{ form.due_date.id }}" class="form-label">
                   <h5>Due Date</h5>
-                  <small class="text-muted">Leave blank for no due date</small>
+                  <small class="text-muted">
+                    Leave blank for no due date
+                  </small>
                 </label>
-                {{ form.due_date(class="form-control", type="datetime-local") }}
-                {% if form.due_date.errors %}
-                <div class="text-danger mt-2">
-                  {% for error in form.due_date.errors %}
-                  <small>{{ error }}</small><br />
+
+                {{ form.due_date( id=form.due_date.id, class="form-control",
+                type="datetime-local" ) }} {% if form.due_date.errors %}
+                <div class="text-danger mt-2 small">
+                  {% for error in form.due_date.errors %} {{ error }}<br />
                   {% endfor %}
                 </div>
                 {% endif %}
@@ -82,59 +89,61 @@
                 <label for="{{ form.max_score.id }}" class="form-label">
                   <h5>Maximum Score <span class="text-danger">*</span></h5>
                 </label>
-                {{ form.max_score(class="form-control", placeholder="100") }} {%
-                if form.max_score.errors %}
-                <div class="text-danger mt-2">
-                  {% for error in form.max_score.errors %}
-                  <small>{{ error }}</small><br />
+
+                {{ form.max_score( class="form-control", placeholder="100" ) }}
+                {% if form.max_score.errors %}
+                <div class="text-danger mt-2 small">
+                  {% for error in form.max_score.errors %} {{ error }}<br />
                   {% endfor %}
                 </div>
                 {% endif %}
               </div>
             </div>
 
-            <!-- Quick Templates -->
+            <!-- Templates -->
             <div class="card mb-4">
               <div class="card-header">
                 <h5 class="mb-0">Quick Templates</h5>
               </div>
+
               <div class="card-body">
-                <p class="text-muted">
-                  Click to fill in common assignment types
+                <p class="text-muted mb-3">
+                  Click to fill common assignment types
                 </p>
+
                 <div class="d-flex flex-wrap gap-2">
                   <button
                     type="button"
                     class="btn btn-outline-secondary btn-sm"
-                    onclick="fillTemplate('quiz')"
+                    data-template="quiz"
                   >
                     Quiz/Test
                   </button>
                   <button
                     type="button"
                     class="btn btn-outline-secondary btn-sm"
-                    onclick="fillTemplate('essay')"
+                    data-template="essay"
                   >
                     Essay
                   </button>
                   <button
                     type="button"
                     class="btn btn-outline-secondary btn-sm"
-                    onclick="fillTemplate('project')"
+                    data-template="project"
                   >
                     Project
                   </button>
                   <button
                     type="button"
                     class="btn btn-outline-secondary btn-sm"
-                    onclick="fillTemplate('homework')"
+                    data-template="homework"
                   >
                     Homework
                   </button>
                   <button
                     type="button"
                     class="btn btn-outline-secondary btn-sm"
-                    onclick="fillTemplate('presentation')"
+                    data-template="presentation"
                   >
                     Presentation
                   </button>
@@ -142,13 +151,12 @@
               </div>
             </div>
 
+            <!-- Actions -->
             <div class="d-flex justify-content-between">
-              <a
-                href="{{ url_for('courses.view', course_id=course.id) }}"
-                class="btn btn-secondary"
-              >
+              <a href="{{ course_view.course_url }}" class="btn btn-secondary">
                 <i class="bi bi-arrow-left"></i> Cancel
               </a>
+
               <button type="submit" class="btn btn-primary btn-lg">
                 <i class="bi bi-plus-circle"></i> Create Assignment
               </button>
@@ -161,107 +169,70 @@
 </div>
 {% endblock %} {% block extra_js %}
 <script>
-  // Template descriptions
-  const templates = {
-    quiz: {
-      description: `Instructions:
-- This is a timed quiz
-- You have [X] minutes to complete
-- Multiple choice and short answer questions
-- Open book/notes [allowed/not allowed]
-- Submit your answers before the due date
+  (function () {
+    const templates = {
+      quiz: `Instructions:
+- Timed quiz
+- Multiple choice & short answer
+- Submit before due date
 
 Requirements:
 - Answer all questions
-- Show your work where applicable
 - No collaboration allowed`,
-    },
-    essay: {
-      description: `Instructions:
-Write a [length] essay on [topic].
+
+      essay: `Instructions:
+Write a structured academic essay.
 
 Requirements:
-- Minimum word count: [X words]
-- Use proper citations (MLA/APA format)
-- Include a bibliography
-- Original work only - plagiarism will result in zero credit
-- Upload as PDF or Word document
+- Include citations (APA/MLA)
+- Submit as PDF or Word document
+- Original work only`,
 
-Grading Criteria:
-- Thesis and argument (40%)
-- Evidence and support (30%)
-- Writing quality (20%)
-- Citations and formatting (10%)`,
-    },
-    project: {
-      description: `Project Overview:
-[Describe the project goals and objectives]
+      project: `Project Overview:
+Describe your project objectives.
 
 Deliverables:
-1. [Deliverable 1]
-2. [Deliverable 2]
-3. [Deliverable 3]
+1. Main deliverable
+2. Documentation
+3. Supporting materials`,
 
-Requirements:
-- Work can be done individually or in groups of [X]
-- Include documentation/report
-- Submit all files in a single ZIP archive
-
-Grading Rubric:
-- Functionality (40%)
-- Design and implementation (30%)
-- Documentation (20%)
-- Presentation (10%)`,
-    },
-    homework: {
-      description: `Instructions:
-Complete the following exercises from [chapter/section].
-
-Problems to solve:
-- Problem 1: [description]
-- Problem 2: [description]
-- Problem 3: [description]
+      homework: `Instructions:
+Complete assigned problems.
 
 Requirements:
 - Show all work
-- Answer in complete sentences where applicable
 - Submit as a single PDF file`,
-    },
-    presentation: {
-      description: `Instructions:
-Prepare a [length] minute presentation on [topic].
+
+      presentation: `Instructions:
+Prepare a structured presentation.
 
 Requirements:
-- Create slides (PowerPoint/Google Slides)
-- Include visual aids
-- Minimum [X] slides
-- Cite all sources
-- Submit slides before presentation date
+- Include slides
+- Cite sources
+- Submit slides before presentation date`,
+    };
 
-Grading Criteria:
-- Content quality (40%)
-- Presentation delivery (30%)
-- Visual design (20%)
-- Time management (10%)`,
-    },
-  };
-
-  function fillTemplate(type) {
     const titleInput = document.getElementById("{{ form.title.id }}");
     const descInput = document.getElementById("{{ form.description.id }}");
+    const dueInput = document.getElementById("{{ form.due_date.id }}");
 
-    if (confirm("This will replace current content. Continue?")) {
-      titleInput.value = type.charAt(0).toUpperCase() + type.slice(1);
-      descInput.value = templates[type].description;
+    document.querySelectorAll("[data-template]").forEach((btn) => {
+      btn.addEventListener("click", function () {
+        const type = this.dataset.template;
+
+        if (confirm("This will replace current content. Continue?")) {
+          titleInput.value = type.charAt(0).toUpperCase() + type.slice(1);
+          descInput.value = templates[type];
+        }
+      });
+    });
+
+    // Set minimum due date to current time
+    if (dueInput) {
+      const now = new Date();
+      now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+      dueInput.min = now.toISOString().slice(0, 16);
     }
-  }
-
-  // Set minimum date to today for due date picker
-  const dueDateInput = document.querySelector('input[type="datetime-local"]');
-  if (dueDateInput) {
-    const now = new Date();
-    now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
-    dueDateInput.min = now.toISOString().slice(0, 16);
-  }
+  })();
 </script>
-{% endblock %}s
+{% endblock %}

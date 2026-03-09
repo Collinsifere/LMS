@@ -1,166 +1,158 @@
-{% extends "base.html" %}
-
-{% block title %}{{ assignment.title }} - LMS{% endblock %}
-
-{% block content %}
+{% extends "base.html" %} {% block title %}{{ assignment_view.title }} - LMS{%
+endblock %} {% block content %}
 <div class="row">
-    <div class="col-md-8">
-        <div class="card">
-            <div class="card-header bg-primary text-white">
-                <h2 class="mb-0">{{ assignment.title }}</h2>
-            </div>
-            <div class="card-body">
-                <div class="mb-3">
-                    <h5>Course:</h5>
-                    <p><a href="{{ url_for('courses.view', course_id=assignment.course.id) }}">{{ assignment.course.title }}</a></p>
-                </div>
+  <div class="col-md-8">
+    <!-- Assignment -->
+    <div class="card">
+      <div class="card-header bg-primary text-white">
+        <h2 class="mb-0">{{ assignment_view.title }}</h2>
+      </div>
 
-                <div class="mb-3">
-                    <h5>Description:</h5>
-                    <p>{{ assignment.description or 'No description provided.' }}</p>
-                </div>
-
-                <div class="row mb-3">
-                    <div class="col-md-6">
-                        <h5>Due Date:</h5>
-                        <p>
-                            {% if assignment.due_date %}
-                                {{ assignment.due_date.strftime('%B %d, %Y at %I:%M %p') }}
-                                {% if assignment.due_date < now %}
-                                    <span class="badge bg-danger">Overdue</span>
-                                {% else %}
-                                    <span class="badge bg-success">Upcoming</span>
-                                {% endif %}
-                            {% else %}
-                                No due date
-                            {% endif %}
-                        </p>
-                    </div>
-                    <div class="col-md-6">
-                        <h5>Maximum Score:</h5>
-                        <p>{{ assignment.max_score }} points</p>
-                    </div>
-                </div>
-            </div>
+      <div class="card-body">
+        <div class="mb-3">
+          <h5>Course:</h5>
+          <p>
+            <a href="{{ assignment_view.course_url }}"
+              >{{ assignment_view.course_title }}</a
+            >
+          </p>
         </div>
 
-        <!-- Submission Status -->
-        {% if submission %}
-        <div class="card mt-4">
-            <div class="card-header bg-success text-white">
-                <h4 class="mb-0">Your Submission</h4>
-            </div>
-            <div class="card-body">
-                <div class="mb-3">
-                    <h5>Submitted:</h5>
-                    <p>{{ submission.submitted_at.strftime('%B %d, %Y at %I:%M %p') }}</p>
-                </div>
+        <div class="mb-3">
+          <h5>Description:</h5>
+          <p>{{ assignment_view.description_text }}</p>
+        </div>
 
-                {% if submission.content %}
-                <div class="mb-3">
-                    <h5>Submission Text:</h5>
-                    <div class="border p-3 bg-light">
-                        {{ submission.content }}
-                    </div>
-                </div>
-                {% endif %}
+        <div class="row mb-3">
+          <div class="col-md-6">
+            <h5>Due Date:</h5>
+            <p class="mb-0">
+              {{ assignment_view.due_display }} {% if
+              assignment_view.due_badge_html %} {{
+              assignment_view.due_badge_html | safe }} {% endif %}
+            </p>
+          </div>
+          <div class="col-md-6">
+            <h5>Maximum Score:</h5>
+            <p class="mb-0">{{ assignment_view.max_score_display }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
 
-                {% if submission.file_path %}
-                <div class="mb-3">
-                    <h5>Attached File:</h5>
-                    <p><i class="bi bi-file-earmark"></i> {{ submission.file_path.split('/')[-1] }}</p>
-                </div>
-                {% endif %}
+    <!-- Submission -->
+    {% if submission_view %}
+    <div class="card mt-4">
+      <div class="card-header bg-success text-white">
+        <h4 class="mb-0">Your Submission</h4>
+      </div>
 
-                <!-- Grading Information -->
-                {% if submission.score is not none %}
-                <div class="alert alert-info">
-                    <h5>Graded</h5>
-                    <p><strong>Score:</strong> {{ submission.score }} / {{ assignment.max_score }}</p>
-                    <p><strong>Percentage:</strong> {{ "%.1f"|format((submission.score / assignment.max_score) * 100) }}%</p>
-                    {% if submission.graded_at %}
-                    <p><strong>Graded on:</strong> {{ submission.graded_at.strftime('%B %d, %Y at %I:%M %p') }}</p>
-                    {% endif %}
-                    
-                    {% if submission.feedback %}
-                    <hr>
-                    <h6>Instructor Feedback:</h6>
-                    <div class="border p-3 bg-white">
-                        {{ submission.feedback }}
-                    </div>
-                    {% endif %}
-                </div>
-                {% else %}
-                <div class="alert alert-warning">
-                    <i class="bi bi-clock"></i> Your submission is pending grading.
-                </div>
-                {% endif %}
+      <div class="card-body">
+        <div class="mb-3">
+          <h5>Submitted:</h5>
+          <p class="mb-0">{{ submission_view.submitted_at_display }}</p>
+        </div>
 
-                <div class="mt-3">
-                    <a href="{{ url_for('assignments.submit', assignment_id=assignment.id) }}" class="btn btn-primary">
-                        Resubmit Assignment
-                    </a>
-                </div>
-            </div>
+        {% if submission_view.content_text %}
+        <div class="mb-3">
+          <h5>Submission Text:</h5>
+          <div class="border p-3 bg-light" style="white-space: pre-wrap">
+            {{ submission_view.content_text }}
+          </div>
+        </div>
+        {% endif %} {% if submission_view.file_name %}
+        <div class="mb-3">
+          <h5>Attached File:</h5>
+          <p class="mb-0">
+            <i class="bi bi-file-earmark"></i> {{ submission_view.file_name }}
+          </p>
+        </div>
+        {% endif %} {% if submission_view.is_graded %}
+        <div class="alert alert-info mb-0">
+          <h5 class="mb-2">Graded</h5>
+
+          <p class="mb-1">
+            <strong>Score:</strong> {{ submission_view.score_display }}
+          </p>
+
+          <p class="mb-1">
+            <strong>Percentage:</strong> {{ submission_view.percentage_display
+            }}
+          </p>
+
+          {% if submission_view.graded_at_display %}
+          <p class="mb-2">
+            <strong>Graded on:</strong> {{ submission_view.graded_at_display }}
+          </p>
+          {% endif %} {% if submission_view.feedback_text %}
+          <hr />
+          <h6>Instructor Feedback:</h6>
+          <div class="border p-3 bg-white" style="white-space: pre-wrap">
+            {{ submission_view.feedback_text }}
+          </div>
+          {% endif %}
         </div>
         {% else %}
-        <!-- No Submission Yet -->
-        <div class="card mt-4">
-            <div class="card-body text-center">
-                <h4>You haven't submitted this assignment yet.</h4>
-                <p class="text-muted">Click the button below to submit your work.</p>
-                <a href="{{ url_for('assignments.submit', assignment_id=assignment.id) }}" class="btn btn-primary btn-lg mt-3">
-                    Submit Assignment
-                </a>
-            </div>
+        <div class="alert alert-warning mb-0">
+          <i class="bi bi-clock"></i> {{ submission_view.pending_text }}
         </div>
         {% endif %}
-    </div>
 
-    <!-- Sidebar -->
-    <div class="col-md-4">
-        <div class="card">
-            <div class="card-header">
-                <h5 class="mb-0">Assignment Info</h5>
-            </div>
-            <div class="card-body">
-                <ul class="list-unstyled">
-                    <li class="mb-2">
-                        <strong>Status:</strong>
-                        {% if submission %}
-                            {% if submission.score is not none %}
-                                <span class="badge bg-success">Graded</span>
-                            {% else %}
-                                <span class="badge bg-warning">Submitted</span>
-                            {% endif %}
-                        {% else %}
-                            <span class="badge bg-secondary">Not Submitted</span>
-                        {% endif %}
-                    </li>
-                    <li class="mb-2">
-                        <strong>Created:</strong><br>
-                        {{ assignment.created_at.strftime('%B %d, %Y') }}
-                    </li>
-                    <li class="mb-2">
-                        <strong>Instructor:</strong><br>
-                        {{ assignment.course.instructor.first_name }} {{ assignment.course.instructor.last_name }}
-                    </li>
-                </ul>
-
-                <hr>
-
-                <a href="{{ url_for('courses.view', course_id=assignment.course.id) }}" class="btn btn-outline-secondary w-100">
-                    Back to Course
-                </a>
-            </div>
+        <div class="mt-3">
+          <a href="{{ submission_view.submit_url }}" class="btn btn-primary">
+            {{ submission_view.submit_button_label }}
+          </a>
         </div>
+      </div>
     </div>
-</div>
-{% endblock %}
+    {% else %}
+    <div class="card mt-4">
+      <div class="card-body text-center">
+        <h4>{{ no_submission_title }}</h4>
+        <p class="text-muted">{{ no_submission_text }}</p>
+        <a href="{{ submit_url }}" class="btn btn-primary btn-lg mt-3">
+          Submit Assignment
+        </a>
+      </div>
+    </div>
+    {% endif %}
+  </div>
 
-{% block extra_js %}
-<script>
-    // Add current datetime for comparison
-    const now = new Date();
-</script>
+  <!-- Sidebar -->
+  <div class="col-md-4">
+    <div class="card">
+      <div class="card-header">
+        <h5 class="mb-0">Assignment Info</h5>
+      </div>
+
+      <div class="card-body">
+        <ul class="list-unstyled mb-0">
+          <li class="mb-2">
+            <strong>Status:</strong>
+            {{ sidebar_view.status_badge_html | safe }}
+          </li>
+
+          <li class="mb-2">
+            <strong>Created:</strong><br />
+            {{ sidebar_view.created_at_display }}
+          </li>
+
+          <li class="mb-2">
+            <strong>Instructor:</strong><br />
+            {{ sidebar_view.instructor_name }}
+          </li>
+        </ul>
+
+        <hr />
+
+        <a
+          href="{{ sidebar_view.back_to_course_url }}"
+          class="btn btn-outline-secondary w-100"
+        >
+          Back to Course
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
 {% endblock %}
