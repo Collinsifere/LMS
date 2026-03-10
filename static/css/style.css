@@ -1,24 +1,113 @@
-/* Custom styles for LMS */
+/* =========================================================
+   LMS Base Styles
+   ========================================================= */
+
+:root {
+  --lms-shadow-sm: 0 2px 6px rgba(0, 0, 0, 0.08);
+  --lms-shadow-md: 0 6px 18px rgba(0, 0, 0, 0.14);
+  --lms-radius: 0.75rem;
+  --lms-transition: 160ms ease;
+}
+
+html,
+body {
+  height: 100%;
+}
 
 body {
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
 }
 
 main {
-    flex: 1;
+  flex: 1;
 }
 
+/* =========================================================
+   Cards
+   ========================================================= */
+
+/* Keep your spacing rule, but don't enforce radius globally unless you want it everywhere */
 .card {
-    margin-bottom: 1.5rem;
+  margin-bottom: 1.5rem;
 }
 
+/* Optional global rounded look — enable if you want ALL cards rounded the same way */
+/*
+.card {
+  border-radius: var(--lms-radius);
+}
+*/
+
+/* Hover utility (canonical name) */
+.card--hover {
+  transition: transform var(--lms-transition), box-shadow var(--lms-transition);
+  will-change: transform;
+}
+
+.card--hover:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--lms-shadow-md);
+}
+
+/* Backwards compatibility: if templates used lms-card-hover, support it too */
+.lms-card-hover {
+  transition: transform var(--lms-transition), box-shadow var(--lms-transition);
+  will-change: transform;
+}
+
+.lms-card-hover:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--lms-shadow-md);
+}
+
+/* Keep compatibility with your existing template class */
 .course-card {
-    transition: transform 0.2s;
+  transition: transform var(--lms-transition), box-shadow var(--lms-transition);
+  will-change: transform;
 }
 
 .course-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+  transform: translateY(-4px);
+  box-shadow: var(--lms-shadow-md);
 }
+
+/* =========================================================
+   Progress Bars (CSS variable approach)
+   Usage: style="--progress: 50;" on .progress-bar
+   ========================================================= */
+
+.progress-bar {
+  width: calc(var(--progress, 0) * 1%);
+}
+
+/* =========================================================
+   Small UI helpers
+   ========================================================= */
+
+.lms-shadow-sm {
+  box-shadow: var(--lms-shadow-sm);
+}
+
+.lms-shadow-md {
+  box-shadow: var(--lms-shadow-md);
+}
+
+.lms-rounded {
+  border-radius: var(--lms-radius);
+}
+
+/* Icon sizing helpers (optional but useful for templates) */
+.lms-icon-xl {
+  font-size: 2rem;
+}
+
+.lms-icon-xxl {
+  font-size: 3rem;
+}
+
+/* Softer muted text helper */
+.text-muted-soft {
+  color: rgba(0, 0, 0, 0.35) !important;
+} 
