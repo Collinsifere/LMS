@@ -1,268 +1,350 @@
-{% extends "base.html" %}    #Add lesson to Course, Lesson title and content, Video URL embedding (YouTube, Vimeo support).
-
-{% block title %}Add Lesson - {{ course.title }} - LMS{% endblock %}
-
-{% block content %}
+{% extends "base.html" %} {% block title %}Add Lesson - {{ course.title }} -
+LMS{% endblock %} {% block content %}
 <div class="container">
-    <div class="row">
-        <div class="col-md-8 mx-auto">
-            <nav aria-label="breadcrumb">
-                <ol class="breadcrumb">
-                    <li class="breadcrumb-item"><a href="{{ url_for('dashboard.index') }}">Dashboard</a></li>
-                    <li class="breadcrumb-item"><a href="{{ url_for('courses.index') }}">Courses</a></li>
-                    <li class="breadcrumb-item"><a href="{{ url_for('courses.view', course_id=course.id) }}">{{ course.title }}</a></li>
-                    <li class="breadcrumb-item active">Add Lesson</li>
-                </ol>
-            </nav>
+  <div class="row">
+    <div class="col-lg-8 mx-auto">
+      <!-- Breadcrumb -->
+      <nav aria-label="breadcrumb" class="mb-3">
+        <ol class="breadcrumb">
+          <li class="breadcrumb-item">
+            <a href="{{ url_for('dashboard.index') }}">Dashboard</a>
+          </li>
+          <li class="breadcrumb-item">
+            <a href="{{ url_for('courses.index') }}">Courses</a>
+          </li>
+          <li class="breadcrumb-item">
+            <a href="{{ url_for('courses.view', course_id=course.id) }}"
+              >{{ course.title }}</a
+            >
+          </li>
+          <li class="breadcrumb-item active" aria-current="page">Add Lesson</li>
+        </ol>
+      </nav>
 
-            <div class="card">
-                <div class="card-header bg-primary text-white">
-                    <h2 class="mb-0"><i class="bi bi-plus-circle"></i> Add New Lesson</h2>
-                </div>
-                <div class="card-body">
-                    <div class="alert alert-info">
-                        <strong>Course:</strong> {{ course.title }} ({{ course.code }})
-                    </div>
-
-                    <form method="POST">
-                        {{ form.hidden_tag() }}
-
-                        <div class="mb-4">
-                            <label for="{{ form.title.id }}" class="form-label">
-                                <h5>Lesson Title <span class="text-danger">*</span></h5>
-                                <small class="text-muted">Give your lesson a clear, descriptive title</small>
-                            </label>
-                            {{ form.title(class="form-control form-control-lg", placeholder="e.g., Introduction to Variables, Chapter 1: Getting Started") }}
-                            {% if form.title.errors %}
-                                <div class="text-danger mt-2">
-                                    {% for error in form.title.errors %}
-                                        <small>{{ error }}</small><br>
-                                    {% endfor %}
-                                </div>
-                            {% endif %}
-                        </div>
-
-                        <div class="mb-4">
-                            <label for="{{ form.content.id }}" class="form-label">
-                                <h5>Lesson Content</h5>
-                                <small class="text-muted">Write your lesson content, instructions, or notes</small>
-                            </label>
-                            {{ form.content(class="form-control", rows="12", placeholder="Enter your lesson content here...
-
-You can include:
-• Learning objectives
-• Key concepts and explanations
-• Examples and demonstrations
-• Practice exercises
-• Reading materials
-• Additional resources") }}
-                            {% if form.content.errors %}
-                                <div class="text-danger mt-2">
-                                    {% for error in form.content.errors %}
-                                        <small>{{ error }}</small><br>
-                                    {% endfor %}
-                                </div>
-                            {% endif %}
-                            <div class="form-text">
-                                <small>Tip: Use clear headings and formatting to organize your content</small>
-                            </div>
-                        </div>
-
-                        <div class="mb-4">
-                            <label for="{{ form.video_url.id }}" class="form-label">
-                                <h5>Video URL (Optional)</h5>
-                                <small class="text-muted">Add a YouTube or video URL to embed in this lesson</small>
-                            </label>
-                            <div class="input-group">
-                                <span class="input-group-text"><i class="bi bi-play-circle"></i></span>
-                                {{ form.video_url(class="form-control", placeholder="https://www.youtube.com/watch?v=...") }}
-                            </div>
-                            {% if form.video_url.errors %}
-                                <div class="text-danger mt-2">
-                                    {% for error in form.video_url.errors %}
-                                        <small>{{ error }}</small><br>
-                                    {% endfor %}
-                                </div>
-                            {% endif %}
-                            <div class="form-text">
-                                <small>Supported: YouTube, Vimeo, and direct video URLs</small>
-                            </div>
-                        </div>
-
-                        <div class="row mb-4">
-                            <div class="col-md-6">
-                                <label for="{{ form.duration_minutes.id }}" class="form-label">
-                                    <h5>Duration (Minutes)</h5>
-                                    <small class="text-muted">Estimated time to complete</small>
-                                </label>
-                                <div class="input-group">
-                                    {{ form.duration_minutes(class="form-control", placeholder="30") }}
-                                    <span class="input-group-text">minutes</span>
-                                </div>
-                                {% if form.duration_minutes.errors %}
-                                    <div class="text-danger mt-2">
-                                        {% for error in form.duration_minutes.errors %}
-                                            <small>{{ error }}</small><br>
-                                        {% endfor %}
-                                    </div>
-                                {% endif %}
-                            </div>
-
-                            <div class="col-md-6">
-                                <label for="{{ form.order.id }}" class="form-label">
-                                    <h5>Lesson Order</h5>
-                                    <small class="text-muted">Position in course sequence</small>
-                                </label>
-                                {{ form.order(class="form-control", placeholder="1") }}
-                                {% if form.order.errors %}
-                                    <div class="text-danger mt-2">
-                                        {% for error in form.order.errors %}
-                                            <small>{{ error }}</small><br>
-                                        {% endfor %}
-                                    </div>
-                                {% endif %}
-                                <div class="form-text">
-                                    <small>Lower numbers appear first (e.g., 1, 2, 3...)</small>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Lesson Preview Card -->
-                        <div class="card mb-4 bg-light">
-                            <div class="card-header">
-                                <h5 class="mb-0"><i class="bi bi-eye"></i> Preview</h5>
-                            </div>
-                            <div class="card-body">
-                                <div id="previewTitle" class="h4 text-muted">Your lesson title will appear here</div>
-                                <div id="previewMeta" class="text-muted mb-2">
-                                    <small>
-                                        <span id="previewDuration"></span>
-                                        <span id="previewVideo"></span>
-                                    </small>
-                                </div>
-                                <div id="previewContent" class="text-muted">Your lesson content will appear here...</div>
-                            </div>
-                        </div>
-
-                        <!-- Tips Card -->
-                        <div class="card mb-4">
-                            <div class="card-header bg-success text-white">
-                                <h5 class="mb-0"><i class="bi bi-lightbulb"></i> Tips for Effective Lessons</h5>
-                            </div>
-                            <div class="card-body">
-                                <div class="row">
-                                    <div class="col-md-6">
-                                        <h6>Content Structure:</h6>
-                                        <ul class="small">
-                                            <li>Start with clear learning objectives</li>
-                                            <li>Break complex topics into sections</li>
-                                            <li>Include examples and illustrations</li>
-                                            <li>End with a summary or review</li>
-                                        </ul>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <h6>Engagement:</h6>
-                                        <ul class="small">
-                                            <li>Mix text with video content</li>
-                                            <li>Keep lessons focused and concise</li>
-                                            <li>Add practice questions</li>
-                                            <li>Provide additional resources</li>
-                                        </ul>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Content Templates -->
-                        <div class="card mb-4">
-                            <div class="card-header">
-                                <h5 class="mb-0">Quick Content Templates</h5>
-                            </div>
-                            <div class="card-body">
-                                <p class="text-muted">Click to use a template structure:</p>
-                                <div class="btn-group-vertical w-100">
-                                    <button type="button" class="btn btn-outline-secondary btn-sm text-start" 
-                                            onclick="fillTemplate('basic')">
-                                        📝 Basic Lesson Structure
-                                    </button>
-                                    <button type="button" class="btn btn-outline-secondary btn-sm text-start" 
-                                            onclick="fillTemplate('tutorial')">
-                                        🎯 Step-by-Step Tutorial
-                                    </button>
-                                    <button type="button" class="btn btn-outline-secondary btn-sm text-start" 
-                                            onclick="fillTemplate('theory')">
-                                        📚 Theory/Concept Lesson
-                                    </button>
-                                    <button type="button" class="btn btn-outline-secondary btn-sm text-start" 
-                                            onclick="fillTemplate('practical')">
-                                        🔧 Practical Exercise
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="d-flex justify-content-between">
-                            <a href="{{ url_for('courses.view', course_id=course.id) }}" class="btn btn-secondary">
-                                <i class="bi bi-arrow-left"></i> Cancel
-                            </a>
-                            <button type="submit" class="btn btn-primary btn-lg">
-                                <i class="bi bi-check-circle"></i> Add Lesson
-                            </button>
-                        </div>
-                    </form>
-                </div>
-            </div>
+      <div class="card">
+        <div class="card-header bg-primary text-white">
+          <h2 class="mb-0"><i class="bi bi-plus-circle"></i> Add New Lesson</h2>
         </div>
+
+        <div class="card-body">
+          <div class="alert alert-info">
+            <strong>Course:</strong> {{ course.title }}{% if course.code %} ({{
+            course.code }}){% endif %}
+          </div>
+
+          <form method="POST" novalidate>
+            {{ form.hidden_tag() }}
+
+            <!-- Lesson Title -->
+            <div class="mb-4">
+              {{ form.title.label(class="form-label fw-semibold") }} {{
+              form.title(class="form-control form-control-lg",
+              placeholder="e.g., Introduction to Variables, Chapter 1: Getting
+              Started", required=True) }}
+              <div class="form-text">
+                Give your lesson a clear, descriptive title.
+              </div>
+              {% if form.title.errors %}
+              <div class="text-danger small mt-1">
+                {% for error in form.title.errors %}{{ error }}<br />{% endfor
+                %}
+              </div>
+              {% endif %}
+            </div>
+
+            <!-- Lesson Content -->
+            <div class="mb-4">
+              {{ form.content.label(class="form-label fw-semibold") }} {{
+              form.content(class="form-control", rows="12", placeholder="Enter
+              your lesson content here...\n\nYou can include:\n• Learning
+              objectives\n• Key concepts and explanations\n• Examples and
+              demonstrations\n• Practice exercises\n• Reading materials\n•
+              Additional resources") }}
+              <div class="form-text">
+                Tip: Use headings and short sections to keep it readable.
+              </div>
+              {% if form.content.errors %}
+              <div class="text-danger small mt-1">
+                {% for error in form.content.errors %}{{ error }}<br />{% endfor
+                %}
+              </div>
+              {% endif %}
+            </div>
+
+            <!-- Video URL -->
+            <div class="mb-4">
+              {{ form.video_url.label(class="form-label fw-semibold") }}
+              <div class="input-group">
+                <span class="input-group-text"
+                  ><i class="bi bi-play-circle"></i
+                ></span>
+                {{ form.video_url(class="form-control",
+                placeholder="https://www.youtube.com/watch?v=...") }}
+              </div>
+              <div class="form-text">
+                Supported: YouTube, Vimeo, and direct video URLs.
+              </div>
+              {% if form.video_url.errors %}
+              <div class="text-danger small mt-1">
+                {% for error in form.video_url.errors %}{{ error }}<br />{%
+                endfor %}
+              </div>
+              {% endif %}
+            </div>
+
+            <!-- Duration + Order -->
+            <div class="row mb-4">
+              <div class="col-md-6 mb-3 mb-md-0">
+                {{ form.duration_minutes.label(class="form-label fw-semibold")
+                }}
+                <div class="input-group">
+                  {{ form.duration_minutes(class="form-control",
+                  placeholder="30", inputmode="numeric") }}
+                  <span class="input-group-text">minutes</span>
+                </div>
+                <div class="form-text">Estimated time to complete.</div>
+                {% if form.duration_minutes.errors %}
+                <div class="text-danger small mt-1">
+                  {% for error in form.duration_minutes.errors %}{{ error }}<br />{%
+                  endfor %}
+                </div>
+                {% endif %}
+              </div>
+
+              <div class="col-md-6">
+                {{ form.order.label(class="form-label fw-semibold") }} {{
+                form.order(class="form-control", placeholder="1",
+                inputmode="numeric") }}
+                <div class="form-text">
+                  Lower numbers appear first (1, 2, 3...).
+                </div>
+                {% if form.order.errors %}
+                <div class="text-danger small mt-1">
+                  {% for error in form.order.errors %}{{ error }}<br />{% endfor
+                  %}
+                </div>
+                {% endif %}
+              </div>
+            </div>
+
+            <!-- Preview -->
+            <div class="card mb-4 bg-light">
+              <div class="card-header">
+                <h5 class="mb-0"><i class="bi bi-eye"></i> Preview</h5>
+              </div>
+              <div class="card-body">
+                <div id="previewTitle" class="h4 text-muted">
+                  Your lesson title will appear here
+                </div>
+
+                <div id="previewMeta" class="text-muted mb-2 small">
+                  <span id="previewDuration"></span>
+                  <span id="previewVideo"></span>
+                </div>
+
+                <div id="previewContent" class="text-muted">
+                  Your lesson content will appear here...
+                </div>
+              </div>
+            </div>
+
+            <!-- Tips -->
+            <div class="card mb-4">
+              <div class="card-header bg-success text-white">
+                <h5 class="mb-0">
+                  <i class="bi bi-lightbulb"></i> Tips for Effective Lessons
+                </h5>
+              </div>
+              <div class="card-body">
+                <div class="row g-3">
+                  <div class="col-md-6">
+                    <h6>Content Structure</h6>
+                    <ul class="small mb-0">
+                      <li>Start with learning objectives</li>
+                      <li>Break topics into short sections</li>
+                      <li>Include examples</li>
+                      <li>End with a quick summary</li>
+                    </ul>
+                  </div>
+                  <div class="col-md-6">
+                    <h6>Engagement</h6>
+                    <ul class="small mb-0">
+                      <li>Mix text with video (when helpful)</li>
+                      <li>Keep lessons focused</li>
+                      <li>Add practice tasks</li>
+                      <li>Share extra resources</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Templates -->
+            <div class="card mb-4">
+              <div class="card-header">
+                <h5 class="mb-0">Quick Content Templates</h5>
+              </div>
+              <div class="card-body">
+                <p class="text-muted mb-2">
+                  Click to insert a template structure:
+                </p>
+                <div class="d-grid gap-2">
+                  <button
+                    type="button"
+                    class="btn btn-outline-secondary btn-sm text-start"
+                    data-template="basic"
+                  >
+                    📝 Basic Lesson Structure
+                  </button>
+                  <button
+                    type="button"
+                    class="btn btn-outline-secondary btn-sm text-start"
+                    data-template="tutorial"
+                  >
+                    🎯 Step-by-Step Tutorial
+                  </button>
+                  <button
+                    type="button"
+                    class="btn btn-outline-secondary btn-sm text-start"
+                    data-template="theory"
+                  >
+                    📚 Theory / Concept Lesson
+                  </button>
+                  <button
+                    type="button"
+                    class="btn btn-outline-secondary btn-sm text-start"
+                    data-template="practical"
+                  >
+                    🔧 Practical Exercise
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Actions -->
+            <div class="d-flex justify-content-between">
+              <a
+                href="{{ url_for('courses.view', course_id=course.id) }}"
+                class="btn btn-outline-secondary"
+              >
+                <i class="bi bi-arrow-left"></i> Cancel
+              </a>
+              <button type="submit" class="btn btn-primary btn-lg">
+                <i class="bi bi-check-circle"></i> Add Lesson
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
     </div>
+  </div>
 </div>
-{% endblock %}
 
-{% block extra_js %}
+<!-- Template Replace Modal -->
+<div
+  class="modal fade"
+  id="templateConfirmModal"
+  tabindex="-1"
+  aria-hidden="true"
+>
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Replace lesson content?</h5>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="modal"
+          aria-label="Close"
+        ></button>
+      </div>
+      <div class="modal-body">
+        Your current lesson content will be replaced by the selected template.
+      </div>
+      <div class="modal-footer">
+        <button
+          type="button"
+          class="btn btn-outline-secondary"
+          data-bs-dismiss="modal"
+        >
+          Cancel
+        </button>
+        <button type="button" class="btn btn-primary" id="confirmTemplateBtn">
+          Replace
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %} {% block extra_js %}
 <script>
-    // Live preview
-    const titleInput = document.getElementById('{{ form.title.id }}');
-    const contentInput = document.getElementById('{{ form.content.id }}');
-    const videoInput = document.getElementById('{{ form.video_url.id }}');
-    const durationInput = document.getElementById('{{ form.duration_minutes.id }}');
+  // Inputs
+  const titleInput = document.getElementById("{{ form.title.id }}");
+  const contentInput = document.getElementById("{{ form.content.id }}");
+  const videoInput = document.getElementById("{{ form.video_url.id }}");
+  const durationInput = document.getElementById(
+    "{{ form.duration_minutes.id }}",
+  );
 
-    function updatePreview() {
-        // Update title
-        const previewTitle = document.getElementById('previewTitle');
-        previewTitle.textContent = titleInput.value || 'Your lesson title will appear here';
-        previewTitle.className = titleInput.value ? 'h4' : 'h4 text-muted';
+  // Preview elements
+  const previewTitle = document.getElementById("previewTitle");
+  const previewContent = document.getElementById("previewContent");
+  const previewDuration = document.getElementById("previewDuration");
+  const previewVideo = document.getElementById("previewVideo");
 
-        // Update content
-        const previewContent = document.getElementById('previewContent');
-        const content = contentInput.value || 'Your lesson content will appear here...';
-        previewContent.textContent = content.substring(0, 200) + (content.length > 200 ? '...' : '');
-        previewContent.className = contentInput.value ? '' : 'text-muted';
+  function safeText(el, value) {
+    if (!el) return;
+    el.textContent = value;
+  }
 
-        // Update duration
-        const previewDuration = document.getElementById('previewDuration');
-        if (durationInput.value) {
-            previewDuration.innerHTML = `<i class="bi bi-clock"></i> ${durationInput.value} minutes `;
-        } else {
-            previewDuration.innerHTML = '';
-        }
-
-        // Update video indicator
-        const previewVideo = document.getElementById('previewVideo');
-        if (videoInput.value) {
-            previewVideo.innerHTML = `<i class="bi bi-play-circle"></i> Video included`;
-        } else {
-            previewVideo.innerHTML = '';
-        }
+  function updatePreview() {
+    // Title
+    const titleVal = (titleInput?.value || "").trim();
+    if (titleVal) {
+      previewTitle.className = "h4";
+      safeText(previewTitle, titleVal);
+    } else {
+      previewTitle.className = "h4 text-muted";
+      safeText(previewTitle, "Your lesson title will appear here");
     }
 
-    // Add event listeners
-    titleInput.addEventListener('input', updatePreview);
-    contentInput.addEventListener('input', updatePreview);
-    videoInput.addEventListener('input', updatePreview);
-    durationInput.addEventListener('input', updatePreview);
+    // Content (preview first 200 chars)
+    const contentVal = contentInput?.value || "";
+    if (contentVal.trim()) {
+      previewContent.className = "";
+      const snippet =
+        contentVal.length > 200 ? contentVal.slice(0, 200) + "..." : contentVal;
+      safeText(previewContent, snippet);
+    } else {
+      previewContent.className = "text-muted";
+      safeText(previewContent, "Your lesson content will appear here...");
+    }
 
-    // Content templates
-    const templates = {
-        basic: `Learning Objectives:
+    // Duration
+    const durationVal = (durationInput?.value || "").trim();
+    if (durationVal) {
+      safeText(previewDuration, `🕒 ${durationVal} minutes `);
+    } else {
+      safeText(previewDuration, "");
+    }
+
+    // Video indicator
+    const videoVal = (videoInput?.value || "").trim();
+    if (videoVal) {
+      safeText(previewVideo, "▶️ Video included");
+    } else {
+      safeText(previewVideo, "");
+    }
+  }
+
+  // Attach listeners
+  [titleInput, contentInput, videoInput, durationInput].forEach((el) => {
+    if (el) el.addEventListener("input", updatePreview);
+  });
+
+  // Templates
+  const templates = {
+    basic: `Learning Objectives:
 By the end of this lesson, you will be able to:
 • [Objective 1]
 • [Objective 2]
@@ -285,7 +367,7 @@ Summary:
 Next Steps:
 [What students should do after completing this lesson]`,
 
-        tutorial: `What You'll Build/Learn:
+    tutorial: `What You'll Build/Learn:
 [Brief description of the end result]
 
 Prerequisites:
@@ -308,7 +390,7 @@ Common Issues & Solutions:
 Practice Exercise:
 [Challenge students to apply what they learned]`,
 
-        theory: `Introduction to [Topic]:
+    theory: `Introduction to [Topic]:
 [Define the concept and explain its significance]
 
 Historical Context:
@@ -336,7 +418,7 @@ Further Reading:
 • [Resource 1]
 • [Resource 2]`,
 
-        practical: `Exercise Overview:
+    practical: `Exercise Overview:
 [What students will practice in this lesson]
 
 Required Materials/Tools:
@@ -359,23 +441,47 @@ Troubleshooting:
 If you encounter [issue], try [solution]
 
 Challenge (Optional):
-[Additional challenge for advanced students]`
-    };
+[Additional challenge for advanced students]`,
+  };
 
-    function fillTemplate(type) {
-        const contentField = document.getElementById('{{ form.content.id }}');
-        
-        if (contentField.value.trim() !== '') {
-            if (!confirm('This will replace your current content. Continue?')) {
-                return;
-            }
-        }
-        
-        contentField.value = templates[type];
-        updatePreview();
-    }
+  // Modal confirm if content already exists
+  let pendingTemplateKey = null;
+  const modalEl = document.getElementById("templateConfirmModal");
+  const confirmBtn = document.getElementById("confirmTemplateBtn");
+  const modal = modalEl ? new bootstrap.Modal(modalEl) : null;
 
-    // Initialize preview
+  function applyTemplate(key) {
+    if (!contentInput) return;
+    contentInput.value = templates[key] || "";
     updatePreview();
+    contentInput.dispatchEvent(new Event("input"));
+  }
+
+  document.querySelectorAll("[data-template]").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const key = btn.getAttribute("data-template");
+      if (!key) return;
+
+      const hasText =
+        contentInput && (contentInput.value || "").trim().length > 0;
+      if (hasText && modal) {
+        pendingTemplateKey = key;
+        modal.show();
+      } else {
+        applyTemplate(key);
+      }
+    });
+  });
+
+  if (confirmBtn) {
+    confirmBtn.addEventListener("click", () => {
+      if (pendingTemplateKey) applyTemplate(pendingTemplateKey);
+      pendingTemplateKey = null;
+      if (modal) modal.hide();
+    });
+  }
+
+  // Init
+  updatePreview();
 </script>
 {% endblock %}
