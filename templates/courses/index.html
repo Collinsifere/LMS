@@ -1,187 +1,186 @@
-{% extends "base.html" %}
-
-{% block title %}Courses - LMS{% endblock %}
-
-{% block content %}
+{% extends "base.html" %} {% block title %}Courses - LMS{% endblock %} {% block
+content %}
 <div class="container">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h1>
-            {% if current_user.role == 'instructor' %}
-                My Courses
-            {% else %}
-                Available Courses
+  <!-- Header -->
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="mb-0">{{ page_title }}</h1>
+
+    {% if show_create_button %}
+    <a href="{{ create_course_url }}" class="btn btn-primary">
+      <i class="bi bi-plus-circle"></i> Create New Course
+    </a>
+    {% endif %}
+  </div>
+
+  <!-- Instructor Info -->
+  {% if show_instructor_info %}
+  <div class="alert alert-info">
+    <i class="bi bi-info-circle"></i>
+    These are the courses you are teaching. Click on a course to manage its
+    content.
+  </div>
+  {% endif %}
+
+  <!-- Courses Grid -->
+  {% if has_courses %}
+  <div class="row">
+    {% for item in courses_view %}
+    <div class="col-md-6 col-lg-4 mb-4">
+      <div class="card course-card h-100 shadow-sm">
+        <div class="card-header bg-primary text-white">
+          <h5 class="mb-0">{{ item.code }}</h5>
+        </div>
+
+        <div class="card-body d-flex flex-column">
+          <h4 class="card-title">{{ item.title }}</h4>
+
+          {% if item.description_preview %}
+          <p class="card-text flex-grow-1">{{ item.description_preview }}</p>
+          {% else %}
+          <p class="card-text flex-grow-1 text-muted">
+            No description available.
+          </p>
+          {% endif %}
+
+          <div class="mt-3">
+            <p class="text-muted mb-2">
+              <i class="bi bi-person"></i>
+              <small>{{ item.instructor_name }}</small>
+            </p>
+
+            <div class="d-flex justify-content-between align-items-center">
+              <div>
+                <span class="badge bg-secondary">
+                  <i class="bi bi-book"></i> {{ item.lessons_count }} lessons
+                </span>
+                <span class="badge bg-info">
+                  <i class="bi bi-people"></i> {{ item.students_count }}
+                  students
+                </span>
+              </div>
+
+              {% if item.status_badge_html %}
+              <span>{{ item.status_badge_html | safe }}</span>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+
+        <div class="card-footer bg-light">
+          {% if item.primary_action %}
+          <a
+            href="{{ item.primary_action.url }}"
+            class="btn {{ item.primary_action.btn_class }} w-100"
+          >
+            <i class="{{ item.primary_action.icon }}"></i> {{
+            item.primary_action.label }}
+          </a>
+          {% else %}
+          <div class="d-flex gap-2">
+            <a
+              href="{{ item.view_url }}"
+              class="btn btn-outline-primary flex-grow-1"
+            >
+              View Details
+            </a>
+
+            {% if item.show_enroll_form %}
+            <form
+              method="POST"
+              action="{{ item.enroll_url }}"
+              class="flex-grow-1"
+            >
+              <button type="submit" class="btn btn-primary w-100">
+                <i class="bi bi-plus"></i> Enroll
+              </button>
+            </form>
             {% endif %}
-        </h1>
-        {% if current_user.role in ['instructor', 'admin'] %}
-        <a href="{{ url_for('courses.create') }}" class="btn btn-primary">
-            <i class="bi bi-plus-circle"></i> Create New Course
-        </a>
-        {% endif %}
-    </div>
-
-    {% if current_user.role == 'instructor' %}
-    <!-- Instructor View -->
-    <div class="alert alert-info">
-        <i class="bi bi-info-circle"></i> These are the courses you are teaching. Click on a course to manage its content.
-    </div>
-    {% endif %}
-
-    {% if courses %}
-    <div class="row">
-        {% for course in courses %}
-        <div class="col-md-6 col-lg-4 mb-4">
-            <div class="card course-card h-100 shadow-sm">
-                <div class="card-header bg-primary text-white">
-                    <h5 class="mb-0">{{ course.code }}</h5>
-                </div>
-                <div class="card-body d-flex flex-column">
-                    <h4 class="card-title">{{ course.title }}</h4>
-                    <p class="card-text flex-grow-1">
-                        {{ course.description[:150] }}{% if course.description|length > 150 %}...{% endif %}
-                    </p>
-                    
-                    <div class="mt-3">
-                        <p class="text-muted mb-2">
-                            <i class="bi bi-person"></i> 
-                            <small>{{ course.instructor.first_name }} {{ course.instructor.last_name }}</small>
-                        </p>
-                        
-                        <div class="d-flex justify-content-between align-items-center">
-                            <div>
-                                <span class="badge bg-secondary">
-                                    <i class="bi bi-book"></i> {{ course.lessons|length }} lessons
-                                </span>
-                                <span class="badge bg-info">
-                                    <i class="bi bi-people"></i> {{ course.enrollments|length }} students
-                                </span>
-                            </div>
-                            
-                            {% if not course.is_published and current_user.role == 'instructor' %}
-                            <span class="badge bg-warning">Draft</span>
-                            {% elif course.is_published %}
-                            <span class="badge bg-success">Published</span>
-                            {% endif %}
-                        </div>
-                    </div>
-                </div>
-                <div class="card-footer bg-light">
-                    {% if current_user.role == 'instructor' and course.instructor_id == current_user.id %}
-                        <a href="{{ url_for('courses.view', course_id=course.id) }}" class="btn btn-primary w-100">
-                            <i class="bi bi-gear"></i> Manage Course
-                        </a>
-                    {% else %}
-                        {% set is_enrolled = course.enrollments|selectattr('user_id', 'equalto', current_user.id)|list|length > 0 %}
-                        {% if is_enrolled %}
-                            <a href="{{ url_for('courses.view', course_id=course.id) }}" class="btn btn-success w-100">
-                                <i class="bi bi-check-circle"></i> Continue Learning
-                            </a>
-                        {% else %}
-                            <div class="d-flex gap-2">
-                                <a href="{{ url_for('courses.view', course_id=course.id) }}" class="btn btn-outline-primary flex-grow-1">
-                                    View Details
-                                </a>
-                                {% if course.is_published %}
-                                <form method="POST" action="{{ url_for('courses.enroll', course_id=course.id) }}" class="flex-grow-1">
-                                    <button type="submit" class="btn btn-primary w-100">
-                                        <i class="bi bi-plus"></i> Enroll
-                                    </button>
-                                </form>
-                                {% endif %}
-                            </div>
-                        {% endif %}
-                    {% endif %}
-                </div>
-            </div>
+          </div>
+          {% endif %}
         </div>
-        {% endfor %}
+      </div>
     </div>
-    {% else %}
-    <!-- No Courses Available -->
-    <div class="text-center py-5">
-        <i class="bi bi-journal-x" style="font-size: 5rem; color: #ddd;"></i>
-        <h3 class="mt-4 text-muted">No Courses Available</h3>
-        {% if current_user.role == 'instructor' %}
-        <p class="text-muted">You haven't created any courses yet.</p>
-        <a href="{{ url_for('courses.create') }}" class="btn btn-primary btn-lg mt-3">
-            <i class="bi bi-plus-circle"></i> Create Your First Course
-        </a>
-        {% else %}
-        <p class="text-muted">There are no published courses at the moment. Please check back later.</p>
-        {% endif %}
-    </div>
-    {% endif %}
+    {% endfor %}
+  </div>
 
-    {% if current_user.role == 'student' %}
-    <!-- My Enrolled Courses Section -->
-    <hr class="my-5">
-    
-    <h2 class="mb-4">My Enrolled Courses</h2>
-    
-    {% set enrolled_courses = current_user.enrollments|selectattr('status', 'equalto', 'active')|list %}
-    
-    {% if enrolled_courses %}
-    <div class="row">
-        {% for enrollment in enrolled_courses %}
-        {% set course = enrollment.course %}
-        <div class="col-md-6 col-lg-4 mb-4">
-            <div class="card h-100 shadow-sm border-primary">
-                <div class="card-header bg-success text-white">
-                    <h5 class="mb-0">{{ course.code }}</h5>
-                </div>
-                <div class="card-body">
-                    <h4 class="card-title">{{ course.title }}</h4>
-                    <p class="text-muted mb-3">
-                        <small>Instructor: {{ course.instructor.first_name }} {{ course.instructor.last_name }}</small>
-                    </p>
-                    
-                    <!-- Progress Bar -->
-                    <div class="mb-3">
-                        <div class="d-flex justify-content-between mb-1">
-                            <small>Progress</small>
-                            <small>{{ enrollment.progress|round(1) }}%</small>
-                        </div>
-                        <div class="progress">
-                            <div class="progress-bar" role="progressbar" 
-                                 style="--progress: {{ enrollment.progress }}; width: calc(var(--progress) * 1%)"
-                                 aria-valuenow="{{ enrollment.progress }}" 
-                                 aria-valuemin="0" 
-                                 aria-valuemax="100">
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="mb-2">
-                        <span class="badge bg-secondary">{{ course.lessons|length }} lessons</span>
-                        <span class="badge bg-info">{{ course.assignments|length }} assignments</span>
-                    </div>
-                </div>
-                <div class="card-footer bg-light">
-                    <a href="{{ url_for('courses.view', course_id=course.id) }}" class="btn btn-primary w-100">
-                        Continue Learning
-                    </a>
-                </div>
-            </div>
+  <!-- Empty State -->
+  {% else %}
+  <div class="text-center py-5">
+    <i class="bi bi-journal-x" style="font-size: 5rem; color: #ddd"></i>
+    <h3 class="mt-4 text-muted">{{ empty_title }}</h3>
+    <p class="text-muted">{{ empty_text }}</p>
+
+    {% if empty_cta_url and empty_cta_label %}
+    <a href="{{ empty_cta_url }}" class="btn btn-primary btn-lg mt-3">
+      <i class="bi bi-plus-circle"></i> {{ empty_cta_label }}
+    </a>
+    {% endif %}
+  </div>
+  {% endif %}
+
+  <!-- My Enrolled Courses (students only) -->
+  {% if show_my_enrolled_section %}
+  <hr class="my-5" />
+  <h2 class="mb-4">My Enrolled Courses</h2>
+
+  {% if has_my_enrolled_courses %}
+  <div class="row">
+    {% for e in my_enrolled_view %}
+    <div class="col-md-6 col-lg-4 mb-4">
+      <div class="card h-100 shadow-sm border-primary">
+        <div class="card-header bg-success text-white">
+          <h5 class="mb-0">{{ e.code }}</h5>
         </div>
-        {% endfor %}
+
+        <div class="card-body">
+          <h4 class="card-title">{{ e.title }}</h4>
+          <p class="text-muted mb-3">
+            <small>Instructor: {{ e.instructor_name }}</small>
+          </p>
+
+          <div class="mb-3">
+            <div class="d-flex justify-content-between mb-1">
+              <small>Progress</small>
+              <small>{{ e.progress_display }}</small>
+            </div>
+            <div class="progress">
+              <div
+                class="progress-bar"
+                role="progressbar"
+                style="--progress: {{ e.progress_value }};"
+                aria-valuenow="{{ e.progress_value }}"
+                aria-valuemin="0"
+                aria-valuemax="100"
+              ></div>
+            </div>
+          </div>
+
+          <div class="mb-2">
+            <span class="badge bg-secondary"
+              >{{ e.lessons_count }} lessons</span
+            >
+            <span class="badge bg-info"
+              >{{ e.assignments_count }} assignments</span
+            >
+          </div>
+        </div>
+
+        <div class="card-footer bg-light">
+          <a href="{{ e.continue_url }}" class="btn btn-primary w-100">
+            Continue Learning
+          </a>
+        </div>
+      </div>
     </div>
-    {% else %}
-    <div class="alert alert-info">
-        <i class="bi bi-info-circle"></i> You haven't enrolled in any courses yet. Browse available courses above to get started!
-    </div>
-    {% endif %}
-    {% endif %}
+    {% endfor %}
+  </div>
+
+  {% else %}
+  <div class="alert alert-info">
+    <i class="bi bi-info-circle"></i>
+    You haven't enrolled in any courses yet. Browse available courses above to
+    get started!
+  </div>
+  {% endif %} {% endif %}
 </div>
-{% endblock %}
-
-{% block extra_css %}
-<style>
-    .course-card {
-        transition: transform 0.2s, box-shadow 0.2s;
-    }
-    
-    .course-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 8px 16px rgba(0,0,0,0.2) !important;
-    }
-</style>
 {% endblock %}
