@@ -1,81 +1,113 @@
-{% extends "base.html" %}
-
-{% block title %}Edit Course - {{ course.title }}{% endblock %}
-
-{% block content %}
+{% extends "base.html" %} {% block title %}Edit Course - {{ course.title }}{%
+endblock %} {% block content %}
 <div class="container mt-4">
-    <div class="row">
-        <div class="col-md-8 offset-md-2">
+  <!-- Breadcrumb -->
+  <nav aria-label="breadcrumb" class="mb-3">
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item">
+        <a href="{{ url_for('dashboard.index') }}">Dashboard</a>
+      </li>
+      <li class="breadcrumb-item">
+        <a href="{{ url_for('courses.index') }}">Courses</a>
+      </li>
+      <li class="breadcrumb-item">
+        <a href="{{ url_for('courses.view', course_id=course.id) }}"
+          >{{ course.title }}</a
+        >
+      </li>
+      <li class="breadcrumb-item active" aria-current="page">Edit</li>
+    </ol>
+  </nav>
 
-            <div class="card">
-                <div class="card-header bg-primary text-white">
-                    <h4 class="mb-0">Edit Course: {{ course.title }}</h4>
-                </div>
-                <div class="card-body">
+  <div class="row">
+    <div class="col-lg-8 offset-lg-2">
+      <div class="card">
+        <div
+          class="card-header bg-primary text-white d-flex align-items-center justify-content-between"
+        >
+          <h4 class="mb-0">Edit Course</h4>
+          <span class="badge bg-light text-dark"
+            >{{ course.code or "No code" }}</span
+          >
+        </div>
 
-                    <!-- Flask-WTF Form -->
-                    <form method="POST" action="{{ url_for('courses.edit', course_id=course.id) }}">
-                        {{ form.hidden_tag() }}
+        <div class="card-body">
+          <form
+            method="POST"
+            action="{{ url_for('courses.edit', course_id=course.id) }}"
+            novalidate
+          >
+            {{ form.hidden_tag() }}
 
-                        <!-- Title -->
-                        <div class="mb-3">
-                            {{ form.title.label(class="form-label") }}
-                            {{ form.title(class="form-control", placeholder="Enter course title") }}
-                            {% if form.title.errors %}
-                                <div class="text-danger small">
-                                    {% for error in form.title.errors %}
-                                        {{ error }}<br>
-                                    {% endfor %}
-                                </div>
-                            {% endif %}
-                        </div>
-
-                        <!-- Description -->
-                        <div class="mb-3">
-                            {{ form.description.label(class="form-label") }}
-                            {{ form.description(class="form-control", placeholder="Course description", rows="4") }}
-                            {% if form.description.errors %}
-                                <div class="text-danger small">
-                                    {% for error in form.description.errors %}
-                                        {{ error }}<br>
-                                    {% endfor %}
-                                </div>
-                            {% endif %}
-                        </div>
-
-                        <!-- Code -->
-                        <div class="mb-3">
-                            {{ form.code.label(class="form-label") }}
-                            {{ form.code(class="form-control", placeholder="Course code") }}
-                            {% if form.code.errors %}
-                                <div class="text-danger small">
-                                    {% for error in form.code.errors %}
-                                        {{ error }}<br>
-                                    {% endfor %}
-                                </div>
-                            {% endif %}
-                        </div>
-
-                        <!-- Published -->
-                        <div class="form-check mb-3">
-                            {{ form.is_published(class="form-check-input") }}
-                            {{ form.is_published.label(class="form-check-label") }}
-                        </div>
-
-                        <!-- Submit -->
-                        <div class="d-flex justify-content-between">
-                            <a href="{{ url_for('courses.view', course_id=course.id) }}" class="btn btn-secondary">
-                                Cancel
-                            </a>
-                            <button type="submit" class="btn btn-primary">Update Course</button>
-                        </div>
-
-                    </form>
-
-                </div>
+            <!-- Title -->
+            <div class="mb-3">
+              {{ form.title.label(class="form-label") }} {{
+              form.title(class="form-control", placeholder="Enter course title")
+              }}
+              <div class="form-text">
+                A short, clear title students will recognize.
+              </div>
+              {% if form.title.errors %}
+              <div class="text-danger small mt-1">
+                {% for error in form.title.errors %}{{ error }}<br />{% endfor
+                %}
+              </div>
+              {% endif %}
             </div>
 
+            <!-- Description -->
+            <div class="mb-3">
+              {{ form.description.label(class="form-label") }} {{
+              form.description(class="form-control", placeholder="Enter a short
+              course description", rows="5") }}
+              <div class="form-text">
+                Explain what students will learn and any prerequisites.
+              </div>
+              {% if form.description.errors %}
+              <div class="text-danger small mt-1">
+                {% for error in form.description.errors %}{{ error }}<br />{%
+                endfor %}
+              </div>
+              {% endif %}
+            </div>
+
+            <!-- Code -->
+            <div class="mb-3">
+              {{ form.code.label(class="form-label") }} {{
+              form.code(class="form-control", placeholder="e.g., CS101") }}
+              <div class="form-text">Optional. Must be unique if provided.</div>
+              {% if form.code.errors %}
+              <div class="text-danger small mt-1">
+                {% for error in form.code.errors %}{{ error }}<br />{% endfor %}
+              </div>
+              {% endif %}
+            </div>
+
+            <!-- Published -->
+            <div class="form-check mb-4">
+              {{ form.is_published(class="form-check-input") }} {{
+              form.is_published.label(class="form-check-label") }}
+              <div class="form-text">
+                If unpublished, only instructors/admins can access it.
+              </div>
+            </div>
+
+            <!-- Actions -->
+            <div class="d-flex justify-content-between">
+              <a
+                href="{{ url_for('courses.view', course_id=course.id) }}"
+                class="btn btn-outline-secondary"
+              >
+                Cancel
+              </a>
+              <button type="submit" class="btn btn-primary">
+                Save Changes
+              </button>
+            </div>
+          </form>
         </div>
+      </div>
     </div>
+  </div>
 </div>
 {% endblock %}
