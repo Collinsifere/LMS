@@ -1,119 +1,198 @@
-{% extends "base.html" %}
-{% block title %}Instructor Dashboard{% endblock %}
-
-{% block content %}
+{% extends "base.html" %} {% block title %}Instructor Dashboard{% endblock %} {%
+block content %}
 <div class="container">
-
-    <!-- Stats -->
-    <div class="row mb-4">
-        <div class="col-md-3">
-            <div class="card text-center bg-primary text-white">
-                <div class="card-body">
-                    <h2>{{ courses|length }}</h2>
-                    <p>Total Courses</p>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-md-3">
-            <div class="card text-center bg-info text-white">
-                <div class="card-body">
-                    <h2>{{ total_students }}</h2>
-                    <p>Total Students</p>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-md-3">
-            <div class="card text-center bg-secondary text-white">
-                <div class="card-body">
-                    <h2>{{ total_assignments }}</h2>
-                    <p>Assignments</p>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-md-3">
-            <div class="card text-center bg-warning">
-                <div class="card-body">
-                    <h2>{{ pending_submissions|length }}</h2>
-                    <p>Pending Grades</p>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Courses Table -->
-    <div class="card mb-4">
-        <div class="card-header bg-primary text-white">
-            My Courses
-        </div>
+  <!-- Header -->
+  <div class="row mb-4">
+    <div class="col-12">
+      <div class="card bg-success text-white lms-card-hover">
         <div class="card-body">
-            {% if course_stats %}
-            <table class="table table-hover">
-                <thead>
-                    <tr>
-                        <th>Course</th>
-                        <th>Students</th>
-                        <th>Lessons</th>
-                        <th>Assignments</th>
-                        <th>Avg Progress</th>
-                        <th>Status</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for stat in course_stats %}
-                    <tr>
-                        <td>
-                            <a href="{{ url_for('courses.view', course_id=stat.course.id) }}">
-                                {{ stat.course.title }}
-                            </a>
-                        </td>
-                        <td>{{ stat.students }}</td>
-                        <td>{{ stat.lessons }}</td>
-                        <td>{{ stat.assignments }}</td>
-                        <td>
-                            {% if stat.students > 0 %}
-                                {{ stat.avg_progress }}%
-                            {% else %}
-                                N/A
-                            {% endif %}
-                        </td>
-                        <td>
-                            {% if stat.course.is_published %}
-                                <span class="badge bg-success">Live</span>
-                            {% else %}
-                                <span class="badge bg-secondary">Draft</span>
-                            {% endif %}
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-            {% else %}
-                <p class="text-muted">No courses yet.</p>
-            {% endif %}
+          <h2 class="mb-1">
+            <i class="bi bi-person-workspace"></i>
+            Instructor Dashboard
+          </h2>
+          <p class="mb-0">
+            Manage courses, monitor progress, and grade submissions.
+          </p>
         </div>
+      </div>
     </div>
+  </div>
 
-    <!-- Pending Submissions -->
-    <div class="card">
-        <div class="card-header bg-warning">
-            Pending Grades
-        </div>
+  <!-- Stats -->
+  <div class="row mb-4">
+    <div class="col-md-3">
+      <div class="card text-center bg-primary text-white lms-card-hover">
         <div class="card-body">
-            {% if pending_submissions %}
-                {% for submission in pending_submissions %}
-                    <div class="mb-2">
-                        <strong>{{ submission.assignment.title }}</strong><br>
-                        {{ submission.student.first_name }} {{ submission.student.last_name }}
-                    </div>
-                {% endfor %}
-            {% else %}
-                <p class="text-muted">All caught up 🎉</p>
-            {% endif %}
+          <h2 class="mb-0">{{ courses_count }}</h2>
+          <div class="small">Total Courses</div>
         </div>
+      </div>
     </div>
 
+    <div class="col-md-3">
+      <div class="card text-center bg-info text-white lms-card-hover">
+        <div class="card-body">
+          <h2 class="mb-0">{{ total_students }}</h2>
+          <div class="small">Total Students</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-3">
+      <div class="card text-center bg-secondary text-white lms-card-hover">
+        <div class="card-body">
+          <h2 class="mb-0">{{ total_assignments }}</h2>
+          <div class="small">Assignments</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-3">
+      <div class="card text-center bg-warning lms-card-hover">
+        <div class="card-body">
+          <h2 class="mb-0">{{ pending_count }}</h2>
+          <div class="small">Pending Grades</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Courses -->
+  <div class="card mb-4 lms-card-hover">
+    <div
+      class="card-header bg-primary text-white d-flex justify-content-between align-items-center"
+    >
+      <div><i class="bi bi-book-half"></i> My Courses</div>
+      <a href="{{ url_for('courses.create') }}" class="btn btn-light btn-sm">
+        <i class="bi bi-plus-circle"></i> Create Course
+      </a>
+    </div>
+
+    <div class="card-body">
+      {% if course_stats and course_stats|length > 0 %}
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+          <thead>
+            <tr>
+              <th>Course</th>
+              <th class="text-center">Students</th>
+              <th class="text-center">Lessons</th>
+              <th class="text-center">Assignments</th>
+              <th class="text-center">Avg Progress</th>
+              <th class="text-center">Status</th>
+              <th class="text-end">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for stat in course_stats %}
+            <tr>
+              <td>
+                <a
+                  href="{{ url_for('courses.view', course_id=stat.course.id) }}"
+                  class="text-decoration-none"
+                >
+                  <strong>{{ stat.course.title }}</strong>
+                </a>
+                <div class="small text-muted">{{ stat.course.code }}</div>
+              </td>
+
+              <td class="text-center">{{ stat.students }}</td>
+              <td class="text-center">{{ stat.lessons }}</td>
+              <td class="text-center">{{ stat.assignments }}</td>
+
+              <td class="text-center">
+                <span class="badge bg-light text-dark">
+                  {{ stat.avg_progress }}
+                </span>
+              </td>
+
+              <td class="text-center">{{ stat.status_badge | safe }}</td>
+
+              <td class="text-end">
+                <div class="btn-group btn-group-sm">
+                  <a
+                    class="btn btn-outline-primary"
+                    href="{{ url_for('courses.view', course_id=stat.course.id) }}"
+                    title="View"
+                  >
+                    <i class="bi bi-eye"></i>
+                  </a>
+                  <a
+                    class="btn btn-outline-secondary"
+                    href="{{ url_for('courses.edit', course_id=stat.course.id) }}"
+                    title="Edit"
+                  >
+                    <i class="bi bi-pencil"></i>
+                  </a>
+                </div>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% else %}
+      <div class="text-center py-4">
+        <i class="bi bi-journal-plus lms-icon-xxl text-muted-soft"></i>
+        <h5 class="mt-3 text-muted">No courses yet</h5>
+        <p class="text-muted mb-3">Create your first course to get started.</p>
+        <a href="{{ url_for('courses.create') }}" class="btn btn-primary">
+          <i class="bi bi-plus-circle"></i> Create Course
+        </a>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Pending Submissions -->
+  <div class="card lms-card-hover">
+    <div
+      class="card-header bg-warning d-flex justify-content-between align-items-center"
+    >
+      <div><i class="bi bi-exclamation-triangle"></i> Pending Grades</div>
+      <span class="badge bg-dark">{{ pending_count }}</span>
+    </div>
+
+    <div class="card-body">
+      {% if pending_submissions and pending_submissions|length > 0 %}
+      <div class="list-group list-group-flush">
+        {% for submission in pending_submissions %}
+        <a
+          href="{{ url_for('assignments.grade', submission_id=submission.id) }}"
+          class="list-group-item list-group-item-action px-0"
+        >
+          <div class="d-flex justify-content-between align-items-start">
+            <div>
+              <div class="fw-semibold">{{ submission.assignment.title }}</div>
+
+              <div class="small text-muted">
+                <i class="bi bi-person"></i>
+                {{ submission.student.first_name }} {{
+                submission.student.last_name }}
+              </div>
+
+              {% if submission.submitted_at %}
+              <div class="small text-muted">
+                <i class="bi bi-clock"></i>
+                Submitted {{ submission.submitted_at.strftime('%b %d, %I:%M %p')
+                }}
+              </div>
+              {% endif %}
+            </div>
+
+            <span class="badge bg-warning text-dark"> Grade </span>
+          </div>
+        </a>
+        {% endfor %}
+      </div>
+      {% else %}
+      <div class="text-center py-3">
+        <i class="bi bi-check-circle lms-icon-xl text-success"></i>
+        <p class="text-muted mt-2 mb-0">All caught up 🎉</p>
+        <small class="text-muted">No submissions need grading.</small>
+      </div>
+      {% endif %}
+    </div>
+  </div>
 </div>
 {% endblock %}
